@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://malangbabou2-netizen.github.io/ATR-WEBSITE/sitemap.xml
