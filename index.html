@@ -11,14 +11,17 @@
         content="Africa Twin Riders Sénégal (ATR), communauté de passionnés de Honda Africa Twin au Sénégal."
     >
 
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="canonical" href="https://africatwinriders.sn/">
+
+    <link rel="icon" type="image/png" href="images/IMG_3677.PNG">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fr_SN">
     <meta property="og:site_name" content="Africa Twin Riders Sénégal">
+    <meta property="og:url" content="https://africatwinriders.sn/">
     <meta property="og:title" content="Africa Twin Riders Sénégal | ATR">
     <meta property="og:description" content="Africa Twin Riders Sénégal (ATR), communauté de passionnés de Honda Africa Twin au Sénégal.">
-    <meta property="og:image" content="https://malangbabou2-netizen.github.io/ATR-WEBSITE/images/hero-ATR.jpg">
+    <meta property="og:image" content="https://africatwinriders.sn/images/hero-ATR.jpg">
     <meta property="og:image:alt" content="Africa Twin Riders Sénégal, communauté de passionnés de Honda Africa Twin au Sénégal.">
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
@@ -26,7 +29,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Africa Twin Riders Sénégal | ATR">
     <meta name="twitter:description" content="Africa Twin Riders Sénégal (ATR), communauté de passionnés de Honda Africa Twin au Sénégal.">
-    <meta name="twitter:image" content="https://malangbabou2-netizen.github.io/ATR-WEBSITE/images/hero-ATR.jpg">
+    <meta name="twitter:image" content="https://africatwinriders.sn/images/hero-ATR.jpg">
     <meta name="twitter:image:alt" content="Africa Twin Riders Sénégal, communauté de passionnés de Honda Africa Twin au Sénégal.">
 
     <link rel="preload" as="image" href="images/hero-ATR.jpg" fetchpriority="high">
@@ -44,8 +47,7 @@
         <div class="container nav-container">
 
             <a href="#accueil" class="logo" aria-label="ATR, accueil">
-                <span>ATR</span>
-                <small>AFRICA TWIN RIDERS</small>
+                <img class="logo-image" src="images/IMG_3678.PNG" alt="Logo officiel Africa Twin Riders Sénégal">
             </a>
 
             <nav class="navigation" id="siteNavigation" aria-label="Navigation principale">
@@ -59,6 +61,20 @@
                 <a href="#contact">Contact</a>
 
             </nav>
+
+            <div class="header-tools">
+                <ul class="header-social" aria-label="Réseaux sociaux ATR">
+                    <li><span class="header-social-icon" data-social-platform="youtube" role="img" aria-label="YouTube — lien officiel ATR à configurer"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg></span></li>
+                    <li><span class="header-social-icon" data-social-platform="instagram" role="img" aria-label="Instagram — lien officiel ATR à configurer"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.8" r="1.2"/></svg></span></li>
+                    <li><span class="header-social-icon" data-social-platform="facebook" role="img" aria-label="Facebook — lien officiel ATR à configurer"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.5 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.2H7.3v3.2h2.8V21h3.4Z"/></svg></span></li>
+                </ul>
+
+                <div class="language-switch" role="group" aria-label="Choisir la langue">
+                    <button type="button" data-language="fr" aria-pressed="true" aria-label="Français"><span aria-hidden="true">🇫🇷</span> FR</button>
+                    <span aria-hidden="true">|</span>
+                    <button type="button" data-language="en" aria-pressed="false" aria-label="English"><span aria-hidden="true">🇬🇧</span> EN</button>
+                </div>
+            </div>
 
             <button class="menu-button" id="menuButton" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="siteNavigation">
                 <span aria-hidden="true">☰</span>
@@ -367,9 +383,17 @@
                         communication et facilite la mise en relation.
                     </p>
 
+                    <button class="btn btn-primary adventure-proposal-toggle" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
+                        Proposer mon aventure
+                    </button>
+
                 </div>
 
-                <article class="adventure-card" aria-labelledby="jeey-trip-title">
+                <div class="member-adventure-list" id="memberAdventureList">
+
+                <article class="adventure-card" data-adventure data-start-date="2026-10-08" data-end-date="2026-10-18" aria-labelledby="jeey-trip-title">
+
+                    <span class="adventure-status-announcement" data-adventure-status aria-live="polite"></span>
 
                     <div class="adventure-feature">
 
@@ -484,6 +508,76 @@
                     </p>
 
                 </article>
+
+                </div>
+
+                <div class="member-adventure-archive" id="memberAdventureArchive" aria-hidden="true" hidden></div>
+
+                <div class="adventure-card adventure-empty-state" id="adventureEmptyState" role="status" aria-live="polite" hidden>
+                    <h3>La prochaine aventure pourrait être la vôtre !</h3>
+                    <p>
+                        Vous êtes membre d'Africa Twin Riders Sénégal et vous préparez un roadtrip, une expédition ou une sortie personnelle ?
+                        Partagez votre projet avec la communauté ATR et donnez à d'autres passionnés l'occasion de vous accompagner.
+                    </p>
+                    <button class="btn btn-primary" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
+                        Proposer mon aventure
+                    </button>
+                </div>
+
+                <section class="interest-panel adventure-proposal-panel" id="adventure-proposal-panel" aria-labelledby="adventure-proposal-title" hidden>
+                    <p class="section-label">PARTAGER UNE AVENTURE</p>
+                    <h3 id="adventure-proposal-title">Proposer une aventure</h3>
+                    <p class="adventure-proposal-review">
+                        Les propositions ne sont pas publiées automatiquement. Toute proposition doit être examinée et approuvée par l’administrateur ATR avant publication.
+                    </p>
+
+                    <p class="proposal-required-note"><span class="required-marker" aria-hidden="true">*</span> Champ obligatoire</p>
+
+                    <form class="interest-form" id="adventure-proposal-form" action="https://formspree.io/f/xljgjwpe" method="POST" aria-describedby="adventure-proposal-note">
+                        <div class="form-field">
+                            <label for="proposal-name">Nom et prénom du membre ATR <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-name" name="nom_prenom" type="text" autocomplete="name" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-contact">Numéro WhatsApp <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-contact" name="contact" type="text" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-destination">Nom ou destination de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-destination" name="destination" type="text" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-start-date">Date de départ <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-start-date" name="date_debut" type="date" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-end-date">Date de retour <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-end-date" name="date_fin" type="date" required>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="proposal-description">Description de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
+                            <textarea id="proposal-description" name="description" rows="4" required></textarea>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="proposal-additional-info">Informations complémentaires</label>
+                            <textarea id="proposal-additional-info" name="informations_complementaires" rows="4"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary interest-submit" type="submit" aria-describedby="adventure-proposal-note">
+                            Envoyer ma proposition
+                        </button>
+                    </form>
+
+                    <p class="form-note" id="adventure-proposal-note">
+                        Les informations saisies sont transmises via Formspree. L’envoi ne publie pas automatiquement la proposition.
+                    </p>
+                </section>
 
             </div>
 
@@ -787,6 +881,24 @@
                 <p>Africa Twin Riders Sénégal</p>
             </div>
 
+            <ul class="footer-social" aria-label="Réseaux sociaux ATR">
+                <li>
+                    <span class="footer-social-icon" data-social-platform="youtube" role="img" aria-label="YouTube — lien officiel ATR à configurer">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
+                    </span>
+                </li>
+                <li>
+                    <span class="footer-social-icon" data-social-platform="instagram" role="img" aria-label="Instagram — lien officiel ATR à configurer">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.8" r="1.2"/></svg>
+                    </span>
+                </li>
+                <li>
+                    <span class="footer-social-icon" data-social-platform="facebook" role="img" aria-label="Facebook — lien officiel ATR à configurer">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.5 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.2H7.3v3.2h2.8V21h3.4Z"/></svg>
+                    </span>
+                </li>
+            </ul>
+
             <p>
                 © 2026 Africa Twin Riders. Tous droits réservés.
             </p>
@@ -796,6 +908,7 @@
     </footer>
 
 
+    <script src="translations.js"></script>
     <script src="script.js"></script>
 
 </body>
