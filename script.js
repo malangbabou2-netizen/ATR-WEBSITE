@@ -1,3 +1,27 @@
+// Dakar is UTC+00:00. Explicit offsets keep the campaign independent of visitor timezone.
+const octoberRoseStart = Date.parse('2026-10-10T00:00:00+00:00');
+const octoberRoseEnd = Date.parse('2026-11-01T00:00:00+00:00');
+const campaignHero = document.querySelector('.hero');
+const campaignArtwork = document.querySelector('.hero-campaign');
+let heroCampaignTimer;
+
+function updateHeroCampaign() {
+    if (!campaignHero || !campaignArtwork) return;
+    const now = Date.now();
+    const isActive = now >= octoberRoseStart && now < octoberRoseEnd;
+    campaignHero.classList.toggle('hero--october-rose', isActive);
+    campaignArtwork.hidden = !isActive;
+    clearTimeout(heroCampaignTimer);
+    const nextBoundary = now < octoberRoseStart ? octoberRoseStart : octoberRoseEnd;
+    if (now < nextBoundary) {
+        // Recheck daily to stay within browser timer limits, then at the exact boundary.
+        heroCampaignTimer = setTimeout(updateHeroCampaign, Math.min(nextBoundary - now, 86400000));
+    }
+}
+updateHeroCampaign();
+document.addEventListener('visibilitychange', updateHeroCampaign);
+window.addEventListener('pageshow', updateHeroCampaign);
+
 let activeLanguage = 'fr';
 const adventureStatusLabels = {
     fr: { upcoming: 'À venir', ongoing: 'En cours', completed: 'Terminée' },
