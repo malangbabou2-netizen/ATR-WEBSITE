@@ -585,6 +585,108 @@ a.header-social-icon:hover {
     font-size: 24px;
 }
 
+.event-item-expandable {
+    grid-template-rows: auto auto;
+    align-items: start;
+}
+
+.event-details {
+    grid-column: 1 / -1;
+    border-top: 1px solid #ddd;
+    padding-top: 16px;
+}
+
+.event-details summary {
+    width: fit-content;
+    cursor: pointer;
+    font-weight: 700;
+    color: #111;
+}
+
+.event-details summary:focus-visible {
+    outline: 2px solid #c7a56a;
+    outline-offset: 4px;
+}
+
+.event-details-content {
+    padding: 18px 0 4px;
+}
+
+.event-program-note {
+    margin-bottom: 22px;
+    color: #555;
+    font-size: 15px;
+    font-style: italic;
+}
+
+.event-details-content h4 {
+    margin: 24px 0 12px;
+    font-size: 20px;
+}
+
+.camp-objectives {
+    display: grid;
+    gap: 10px;
+    padding-left: 24px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.camp-objectives strong,
+.camp-schedule-day strong {
+    color: #222;
+}
+
+.camp-schedule {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.camp-schedule-day {
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.camp-schedule-day h5 {
+    margin-bottom: 12px;
+    font-size: 17px;
+}
+
+.camp-schedule-day ul {
+    display: grid;
+    gap: 12px;
+    list-style: none;
+}
+
+.camp-schedule-day li {
+    display: grid;
+    gap: 4px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.camp-schedule-day time {
+    color: #111;
+    font-weight: 700;
+}
+
+.camp-schedule-day p {
+    margin-top: 2px;
+}
+
+.event-program-download {
+    margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+    .camp-schedule {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 
 /* =====================================================
    AVENTURES DES MEMBRES
@@ -1247,6 +1349,24 @@ a.footer-social-icon:hover {
         gap: 16px;
     }
 
+    .event-item-expandable {
+        grid-template-rows: auto auto auto;
+    }
+
+    .event-details {
+        grid-column: 1 / -1;
+    }
+
+    .camp-schedule {
+        grid-template-columns: 1fr;
+    }
+
+    .event-program-download {
+        width: 100%;
+        padding: 0 14px;
+        text-align: center;
+    }
+
     .event-date strong {
         font-size: 32px;
     }
@@ -1417,18 +1537,45 @@ a.footer-social-icon:hover {
     }
 }
 
-/* Octobre Rose: artwork stays complete, with the existing content below it. */
-.hero-campaign[hidden] { display: none; }
-.hero-campaign { display: block; width: 100%; }
-.hero-campaign img { display: block; width: 100%; height: auto; }
+/* Octobre Rose poster replaces the regular Hero content during the campaign. */
 .hero.hero--october-rose {
-    min-height: 0;
     display: block;
-    padding-top: 110px;
+    min-height: 0;
+    padding-top: 80px;
     background: #0b0b0b;
 }
-.hero--october-rose .hero-overlay { display: none; }
-.hero--october-rose .hero-content { padding-top: 35px; padding-bottom: 60px; }
-@media (max-width: 768px) {
-    .hero.hero--october-rose { padding-top: 90px; }
+.hero-campaign[hidden] { display: none; }
+.hero--october-rose .hero-campaign { display: block; width: 100%; }
+.hero--october-rose .hero-campaign img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+.hero--october-rose .hero-content { display: none; }
+.hero-campaign-actions { display: none; }
+.hero--october-rose .hero-campaign-actions {
+    display: flex;
+    justify-content: center;
+    padding: 18px 20px 28px;
+}
+.hero--october-rose .hero-campaign-actions .hero-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 0;
+}
+@media (max-width: 700px) {
+    .hero.hero--october-rose { padding-top: 70px; }
+    .hero--october-rose .hero-campaign-actions { padding: 14px 16px 22px; }
+    .hero--october-rose .hero-campaign-actions .hero-buttons {
+        width: 100%;
+        flex-direction: row;
+        align-items: stretch;
+    }
+    .hero--october-rose .hero-campaign-actions .btn {
+        flex: 1 1 145px;
+        min-width: 0;
+        padding: 0 12px;
+    }
 }

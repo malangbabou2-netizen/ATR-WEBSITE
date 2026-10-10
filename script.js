@@ -1,16 +1,60 @@
-// Dakar is UTC+00:00. Explicit offsets keep the campaign independent of visitor timezone.
-const octoberRoseStart = Date.parse('2026-10-10T00:00:00+00:00');
-const octoberRoseEnd = Date.parse('2026-11-01T00:00:00+00:00');
+const campaignDakarClock = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Africa/Dakar',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23'
+});
+
+const getDakarMidnightTimestamp = (year, month, day) => {
+    const targetAsUtc = Date.UTC(year, month - 1, day);
+    let timestamp = targetAsUtc;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        const parts = Object.fromEntries(
+            campaignDakarClock.formatToParts(new Date(timestamp))
+                .filter((part) => part.type !== 'literal')
+                .map((part) => [part.type, Number(part.value)])
+        );
+        const observedAsUtc = Date.UTC(
+            parts.year,
+            parts.month - 1,
+            parts.day,
+            parts.hour,
+            parts.minute,
+            parts.second
+        );
+        const adjustment = targetAsUtc - observedAsUtc;
+        timestamp += adjustment;
+        if (adjustment === 0) break;
+    }
+
+    return timestamp;
+};
+
+const octoberRoseStart = getDakarMidnightTimestamp(2026, 10, 10);
+const octoberRoseEnd = getDakarMidnightTimestamp(2026, 11, 1);
 const campaignHero = document.querySelector('.hero');
 const campaignArtwork = document.querySelector('.hero-campaign');
+const campaignActions = document.querySelector('.hero-campaign-actions');
+const heroContent = campaignHero?.querySelector('.hero-content');
+const heroButtons = heroContent?.querySelector('.hero-buttons');
 let heroCampaignTimer;
 
 function updateHeroCampaign() {
-    if (!campaignHero || !campaignArtwork) return;
+    if (!campaignHero || !campaignArtwork || !campaignActions || !heroContent || !heroButtons) return;
     const now = Date.now();
     const isActive = now >= octoberRoseStart && now < octoberRoseEnd;
     campaignHero.classList.toggle('hero--october-rose', isActive);
     campaignArtwork.hidden = !isActive;
+    if (isActive && heroButtons.parentElement !== campaignActions) {
+        campaignActions.appendChild(heroButtons);
+    } else if (!isActive && heroButtons.parentElement !== heroContent) {
+        heroContent.appendChild(heroButtons);
+    }
     clearTimeout(heroCampaignTimer);
     const nextBoundary = now < octoberRoseStart ? octoberRoseStart : octoberRoseEnd;
     if (now < nextBoundary) {
