@@ -1,0 +1,201 @@
+backend:
+  name: github
+  repo: malangbabou2-netizen/ATR-WEBSITE
+  branch: main
+  open_authoring: true
+  # OAuth is handled by the deployed ATR Cloudflare Worker.
+  base_url: https://atr-cms-auth.malangbabou2.workers.dev
+  auth_endpoint: auth
+
+publish_mode: editorial_workflow
+
+site_url: https://africatwinriders.sn
+display_url: https://africatwinriders.sn
+locale: fr
+
+i18n:
+  structure: multiple_files
+  locales: [fr, en]
+  default_locale: fr
+
+media_folder: uploads
+public_folder: /uploads
+
+collections:
+  - name: events
+    label: Événements ATR
+    label_singular: Événement ATR
+    folder: content/events
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Titre, name: title, widget: string, i18n: true }
+      - { label: Résumé, name: summary, widget: text, i18n: true }
+      - { label: Description, name: body, widget: markdown, i18n: true }
+      - { label: Date de début, name: start_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Date de fin, name: end_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Lieu, name: location, widget: string, i18n: duplicate }
+      - label: Objectifs
+        name: objectives
+        widget: list
+        i18n: true
+        field: { label: Objectif, name: objective, widget: text }
+      - label: Programme
+        name: program
+        widget: list
+        i18n: true
+        fields:
+          - { label: Étape ou journée, name: heading, widget: string }
+          - { label: Détails, name: details, widget: markdown }
+      - { label: Image principale, name: image, widget: image, required: false, i18n: duplicate }
+      - { label: Texte alternatif, name: image_alt, widget: string, required: false, i18n: true }
+      - { label: Document PDF, name: document, widget: file, required: false, i18n: duplicate, hint: "Choisir un fichier PDF." }
+      - { label: Archivé, name: archived, widget: boolean, default: false, i18n: duplicate }
+
+  - name: member_adventures
+    label: Aventures des membres
+    label_singular: Aventure d’un membre
+    folder: content/member-adventures
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Titre, name: title, widget: string, i18n: true }
+      - { label: Résumé, name: summary, widget: text, i18n: true }
+      - { label: Récit, name: body, widget: markdown, i18n: true }
+      - { label: Membre organisateur (nom public), name: organizer, widget: string, i18n: duplicate }
+      - { label: Mention d’initiative et rôle d’ATR, name: atr_role_note, widget: text, i18n: true }
+      - { label: Date de départ, name: start_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Date de retour, name: end_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Itinéraire, name: itinerary, widget: markdown, i18n: true }
+      - { label: Informations pratiques, name: practical_information, widget: markdown, required: false, i18n: true }
+      - { label: Photo principale, name: image, widget: image, required: false, i18n: duplicate }
+      - { label: Texte alternatif de la photo, name: image_alt, widget: string, required: false, i18n: true }
+      - label: Galerie de photos
+        name: photos
+        widget: list
+        required: false
+        i18n: true
+        fields:
+          - { label: Photo, name: image, widget: image }
+          - { label: Texte alternatif, name: alt, widget: string }
+      - { label: Roadbook PDF, name: roadbook, widget: file, required: false, i18n: duplicate, hint: "Choisir un fichier PDF." }
+      - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }
+
+  - name: atr_tv
+    label: ATR TV
+    label_singular: Vidéo ATR
+    folder: content/atr-tv
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Titre, name: title, widget: string, i18n: true }
+      - { label: Résumé, name: summary, widget: text, required: false, i18n: true }
+      - { label: URL de la vidéo YouTube, name: youtube_url, widget: string, hint: "Saisir l’URL réelle de la vidéo. Aucune vidéo n’est préremplie.", i18n: duplicate }
+      - label: Catégorie
+        name: category
+        widget: select
+        i18n: duplicate
+        options:
+          - { label: Road Trips, value: road-trips }
+          - { label: Off-Road, value: off-road }
+          - { label: Sécurité & Formation, value: safety-training }
+          - { label: Événements, value: events }
+          - { label: Ride & Give, value: ride-give }
+      - { label: Image de couverture (facultative), name: image, widget: image, required: false, i18n: duplicate }
+      - { label: Texte alternatif, name: image_alt, widget: string, required: false, i18n: true }
+      - { label: Vidéo mise en avant, name: featured, widget: boolean, default: false, i18n: duplicate }
+      - { label: Ordre d’affichage, name: sort_order, widget: number, value_type: int, default: 0, i18n: duplicate }
+      - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }
+
+  - name: moto_news
+    label: Actualités moto
+    label_singular: Actualité moto
+    folder: content/moto-news
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Titre, name: title, widget: string, i18n: true }
+      - { label: Résumé original et bref, name: summary, widget: text, hint: "Ne pas reproduire le texte intégral de l’article source.", i18n: true }
+      - label: Catégorie
+        name: category
+        widget: select
+        i18n: duplicate
+        options:
+          - { label: MotoGP, value: motogp }
+          - { label: Rallye-Raid, value: rally-raid }
+          - { label: Salons internationaux, value: trade-shows }
+          - { label: Nouveaux modèles, value: new-models }
+          - { label: Équipementiers, value: manufacturers }
+          - { label: Sécurité routière, value: road-safety }
+          - { label: Événements motocyclistes africains, value: african-motorcycle-events }
+      - { label: Date de publication, name: publication_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Nom de la source, name: source_name, widget: string, i18n: duplicate }
+      - { label: URL source/originale, name: original_url, widget: string, i18n: duplicate }
+      - { label: Image, name: image, widget: image, required: false, i18n: duplicate }
+      - { label: Texte alternatif, name: image_alt, widget: string, required: false, i18n: true }
+
+  - name: partner_banners
+    label: Partenaires et bannières
+    label_singular: Bannière partenaire
+    folder: content/partner-banners
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{partner_name}} — {{placement}}"
+    fields:
+      - { label: Nom du partenaire, name: partner_name, widget: string, i18n: duplicate }
+      - { label: Image publicitaire, name: image, widget: image, i18n: duplicate }
+      - { label: Texte alternatif, name: image_alt, widget: string, i18n: true }
+      - { label: Lien de destination HTTPS, name: destination_url, widget: string, i18n: duplicate }
+      - label: Emplacement
+        name: placement
+        widget: select
+        i18n: duplicate
+        options:
+          - { label: Accueil — sous le Hero, value: home-after-hero }
+          - { label: Événements, value: events }
+          - { label: ATR TV, value: atr-tv }
+          - { label: Actualités, value: moto-news }
+      - { label: Premier jour de diffusion (Africa/Dakar), name: start_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Dernier jour de diffusion (Africa/Dakar), name: end_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Bannière active, name: active, widget: boolean, default: false, i18n: duplicate }
+      - { label: Priorité d’affichage, name: priority, widget: number, value_type: int, default: 0, i18n: duplicate }
+
+  - name: ride_and_give
+    label: Ride & Give
+    label_singular: Action Ride & Give
+    folder: content/ride-and-give
+    create: true
+    extension: json
+    format: json
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Titre, name: title, widget: string, i18n: true }
+      - { label: Résumé, name: summary, widget: text, i18n: true }
+      - { label: Description, name: body, widget: markdown, i18n: true }
+      - { label: Date, name: date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Lieu, name: location, widget: string, i18n: duplicate }
+      - { label: Image principale, name: image, widget: image, required: false, i18n: duplicate }
+      - { label: Texte alternatif, name: image_alt, widget: string, required: false, i18n: true }
+      - { label: Document PDF, name: document, widget: file, required: false, i18n: duplicate, hint: "Choisir un fichier PDF." }
+      - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }
