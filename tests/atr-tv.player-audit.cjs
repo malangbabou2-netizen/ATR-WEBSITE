@@ -67,6 +67,12 @@ async function main() {
             evidence.iframe = await iframe.evaluate((node) => ({ src: node.src, referrerPolicy: node.referrerPolicy,
                 width: node.getBoundingClientRect().width, height: node.getBoundingClientRect().height, allow: node.allow,
                 sandbox: node.getAttribute('sandbox') }));
+            evidence.layout = await iframe.evaluate((node) => ({ containerHeight: node.parentElement.getBoundingClientRect().height,
+                dialogOverflows: document.querySelector('#atrTvPlayer').scrollWidth > document.querySelector('#atrTvPlayer').clientWidth,
+                pageOverflows: document.documentElement.scrollWidth > innerWidth }));
+            assert.ok(evidence.iframe.height >= 200 && evidence.layout.containerHeight >= 200, 'Player must retain a height of at least 200px');
+            assert.equal(evidence.layout.dialogOverflows, false, 'Player must not overflow horizontally');
+            assert.equal(evidence.layout.pageOverflows, false, 'Page must not overflow horizontally');
             await iframe.contentFrame().locator('#movie_player').waitFor({ timeout: 30000 });
             const frame = await (await iframe.elementHandle()).contentFrame();
             try {

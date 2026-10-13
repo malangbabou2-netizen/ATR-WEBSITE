@@ -8,6 +8,8 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
 
 (async () => {
     await fs.mkdir(screenshots, { recursive: true });
+    const layoutBaseline = process.env.ATR_TV_LAYOUT_BASELINE
+        ? JSON.parse(await fs.readFile(process.env.ATR_TV_LAYOUT_BASELINE, 'utf8')) : null;
     const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
     const errors = [];
     const makePage = async (width, date = '2026-10-11T12:00:00Z') => {
@@ -52,6 +54,15 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
             const page = await makePage(width);
             await goto(page);
             await ready(page);
+            if (layoutBaseline) {
+                await page.evaluate(() => Promise.all([...document.querySelectorAll('main > section:not(#atr-tv) img')].map((image) => {
+                    image.loading = 'eager';
+                    return image.decode().catch(() => {});
+                })));
+                const layout = await page.evaluate(() => [...document.querySelectorAll('main > section[id]:not(#atr-tv), .header')]
+                    .map((node) => ({ id: node.id || 'header', top: node.offsetTop, width: node.offsetWidth, height: node.offsetHeight })));
+                assert.deepEqual(layout, layoutBaseline[width], `Other sections changed at ${width}px`);
+            }
             assert.equal(await page.locator('.atr-tv-card').count(), 1);
             assert.equal(await page.locator('.atr-tv-copy h3').textContent(), 'Camp ATR LAC ROSE P1');
             assert.equal(await noOverflow(page), true, `Horizontal overflow at ${width}px`);
@@ -69,6 +80,18 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
             await checkNavigation(page, 'en');
             await page.locator('.atr-tv-play').click();
             assert.equal(await page.locator('#atrTvPlayer').evaluate((dialog) => dialog.open), true);
+            const dimensions = await page.locator('#atrTvEmbed iframe').evaluate((iframe) => {
+                const bounds = iframe.getBoundingClientRect();
+                const container = iframe.parentElement.getBoundingClientRect();
+                const dialog = document.querySelector('#atrTvPlayer');
+                return { width: bounds.width, height: bounds.height, containerHeight: container.height,
+                    dialogOverflows: dialog.scrollWidth > dialog.clientWidth,
+                    pageOverflows: document.documentElement.scrollWidth > innerWidth };
+            });
+            assert.ok(dimensions.height >= 200 && dimensions.containerHeight >= 200, `Player too short at ${width}px`);
+            assert.equal(dimensions.dialogOverflows, false);
+            assert.equal(dimensions.pageOverflows, false);
+            console.log(`Player at ${width}px: ${dimensions.width} × ${dimensions.height}px; no horizontal overflow${layoutBaseline ? '; other sections unchanged' : ''}`);
             const src = await page.locator('#atrTvEmbed iframe').getAttribute('src');
             assert.equal(new URL(src).searchParams.get('start'), '674');
             assert.equal(await page.locator('#atrTvExternal').getAttribute('href'), 'https://www.youtube.com/watch?v=eyeOfSerVw0&t=674s');
