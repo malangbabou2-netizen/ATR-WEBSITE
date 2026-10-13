@@ -56,6 +56,7 @@
                 <a href="#about">À propos</a>
                 <a href="#activites">Activités</a>
                 <a href="#evenements">Événements</a>
+                <a href="#atr-tv">ATR TV</a>
                 <a href="#aventures-membres">Aventures des membres</a>
                 <a href="#ride-give">Ride & Give</a>
                 <a href="#contact">Contact</a>
@@ -374,225 +375,6 @@
         </section>
 
 
-        <!-- ================= AVENTURES DES MEMBRES ================= -->
-
-        <section class="member-adventures section" id="aventures-membres" aria-labelledby="member-adventures-title">
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <p class="section-label">PARTAGE DE LA COMMUNAUTÉ</p>
-
-                    <h2 id="member-adventures-title">Les aventures<br>des membres.</h2>
-
-                    <p class="member-adventures-intro">
-                        Les membres ATR peuvent partager leurs aventures personnelles
-                        et les ouvrir à d’autres passionnés. ATR en est le relais de
-                        communication et facilite la mise en relation.
-                    </p>
-
-                    <button class="btn btn-primary adventure-proposal-toggle" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
-                        Proposer mon aventure
-                    </button>
-
-                </div>
-
-                <div class="member-adventure-list" id="memberAdventureList">
-
-                <article class="adventure-card" data-adventure data-start-date="2026-10-08" data-end-date="2026-10-18" aria-labelledby="jeey-trip-title">
-
-                    <span class="adventure-status-announcement" data-adventure-status aria-live="polite"></span>
-
-                    <div class="adventure-feature">
-
-                        <div class="adventure-portrait">
-                            <img class="adventure-photo" src="images/J%20E%20E%20Y.jpeg" alt="J E E Y sur une moto Honda Africa Twin" loading="lazy" decoding="async">
-                        </div>
-
-                        <div class="adventure-feature-copy">
-                            <p class="section-label">INITIATIVE PERSONNELLE</p>
-                            <h3>J E E Y</h3>
-                            <p class="adventure-organizer">Membre ATR · Initiateur de l’aventure</p>
-                            <h4 id="jeey-trip-title">Dakar → Gambie → Casamance → Kédougou</h4>
-
-                            <dl class="adventure-stats">
-                                <div><dt>Dates</dt><dd>8–18 octobre 2026</dd></div>
-                                <div><dt>Durée</dt><dd>11 jours · 10 nuits</dd></div>
-                                <div><dt>Distance</dt><dd>Environ 2 150 km</dd></div>
-                            </dl>
-
-                            <a class="btn btn-primary" href="#jeey-details">Découvrir l’aventure</a>
-                            <a class="btn btn-secondary adventure-roadbook-link" href="documents/roadbooks/Roadbook%20J%20E%20E%20Y.pdf" type="application/pdf" target="_blank" rel="noopener" aria-label="Consulter le roadbook de J E E Y au format PDF, dans un nouvel onglet">Consulter le roadbook PDF</a>
-                            <a class="btn btn-secondary adventure-interest-link" href="#interest-form-start">Je suis intéressé</a>
-                        </div>
-
-                    </div>
-
-                    <div class="adventure-details" id="jeey-details" aria-labelledby="jeey-details-title">
-                        <div class="adventure-overview">
-                            <p class="section-label">LE PARCOURS</p>
-                            <h4 id="jeey-details-title">Du Sénégal à la Casamance</h4>
-                            <p>
-                                Un roadtrip personnel au départ de Dakar, traversant la
-                                Gambie et la Casamance avant de rejoindre Kédougou puis
-                                Dakar. Le parcours annoncé représente environ 2 150 km
-                                sur 11 jours et 10 nuits.
-                            </p>
-
-                            <ol class="adventure-stages">
-                                <li><span>01</span>Banjul · Gambie</li>
-                                <li><span>02</span>Kafountine</li>
-                                <li><span>03</span>Île de Carabane</li>
-                                <li><span>04</span>Cap Skirring</li>
-                                <li><span>05</span>Kédougou</li>
-                            </ol>
-
-                            <p class="adventure-source-note">
-                                Les étapes et informations sont présentées d’après le roadbook de l’aventure.
-                                Son budget estimatif correspond à un budget de voyage, pas à un prix d’inscription.
-                            </p>
-                        </div>
-
-                        <aside class="interest-panel" aria-labelledby="interest-title">
-                            <p class="section-label">PRENDRE CONTACT</p>
-                            <h4 id="interest-title">Intéressé·e ?</h4>
-                            <p>Manifestez votre intérêt pour que l’organisateur puisse vous recontacter au sujet de cette aventure.</p>
-
-                            <form class="interest-form" id="interest-form-start" action="https://formspree.io/f/xjygyraa" method="POST" aria-describedby="interest-form-note">
-                                <input type="hidden" name="_subject" value="Aventure J E E Y — Dakar / Gambie / Casamance / Kédougou">
-
-                                <div class="form-field">
-                                    <label for="interest-name">Nom et prénom</label>
-                                    <input id="interest-name" name="nom_prenom" type="text" autocomplete="name" required>
-                                </div>
-
-                                <div class="form-field">
-                                    <label for="interest-whatsapp">Numéro WhatsApp</label>
-                                    <input id="interest-whatsapp" name="numero_whatsapp" type="tel" autocomplete="tel" required>
-                                </div>
-
-                                <div class="form-field">
-                                    <label for="interest-city">Ville</label>
-                                    <input id="interest-city" name="ville" type="text" autocomplete="address-level2" required>
-                                </div>
-
-                                <div class="form-field">
-                                    <label for="interest-motorcycle">Moto</label>
-                                    <input id="interest-motorcycle" name="moto" type="text" required>
-                                </div>
-
-                                <div class="form-field">
-                                    <label for="interest-people">Nombre de personnes</label>
-                                    <input id="interest-people" name="nombre_de_personnes" type="number" min="1" step="1" required>
-                                </div>
-
-                                <div class="form-field">
-                                    <label for="interest-meeting-point">Point ou étape de jonction (facultatif)</label>
-                                    <input id="interest-meeting-point" name="point_etape_jonction" type="text">
-                                </div>
-
-                                <div class="form-field form-field-full">
-                                    <label for="interest-message">Message (facultatif)</label>
-                                    <textarea id="interest-message" name="message" rows="4"></textarea>
-                                </div>
-
-                                <div class="form-consent form-field-full">
-                                    <input id="interest-consent" name="consentement_contact" type="checkbox" value="oui" required>
-                                    <label for="interest-consent">J’accepte que l’organisateur utilise mon numéro WhatsApp pour me contacter au sujet de cette aventure.</label>
-                                </div>
-
-                                <button class="btn btn-primary interest-submit" type="submit" aria-describedby="interest-form-note">Je suis intéressé</button>
-                            </form>
-
-                            <p class="form-note" id="interest-form-note">
-                                Ce formulaire transmet les informations saisies via Formspree au sujet de l’aventure. Les coordonnées ne sont pas affichées publiquement.
-                            </p>
-                        </aside>
-                    </div>
-
-                    <p class="adventure-disclaimer">
-                        Cette sortie est une initiative personnelle de J E E Y, membre de la communauté ATR.
-                        ATR intervient uniquement comme relais de communication et de mise en relation.
-                    </p>
-
-                </article>
-
-                </div>
-
-                <div class="member-adventure-archive" id="memberAdventureArchive" aria-hidden="true" hidden></div>
-
-                <div class="adventure-card adventure-empty-state" id="adventureEmptyState" role="status" aria-live="polite" hidden>
-                    <h3>La prochaine aventure pourrait être la vôtre !</h3>
-                    <p>
-                        Vous êtes membre d'Africa Twin Riders Sénégal et vous préparez un roadtrip, une expédition ou une sortie personnelle ?
-                        Partagez votre projet avec la communauté ATR et donnez à d'autres passionnés l'occasion de vous accompagner.
-                    </p>
-                    <button class="btn btn-primary" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
-                        Proposer mon aventure
-                    </button>
-                </div>
-
-                <section class="interest-panel adventure-proposal-panel" id="adventure-proposal-panel" aria-labelledby="adventure-proposal-title" hidden>
-                    <p class="section-label">PARTAGER UNE AVENTURE</p>
-                    <h3 id="adventure-proposal-title">Proposer une aventure</h3>
-                    <p class="adventure-proposal-review">
-                        Les propositions ne sont pas publiées automatiquement. Toute proposition doit être examinée et approuvée par l’administrateur ATR avant publication.
-                    </p>
-
-                    <p class="proposal-required-note"><span class="required-marker" aria-hidden="true">*</span> Champ obligatoire</p>
-
-                    <form class="interest-form" id="adventure-proposal-form" action="https://formspree.io/f/xljgjwpe" method="POST" aria-describedby="adventure-proposal-note">
-                        <div class="form-field">
-                            <label for="proposal-name">Nom et prénom du membre ATR <span class="required-marker" aria-hidden="true">*</span></label>
-                            <input id="proposal-name" name="nom_prenom" type="text" autocomplete="name" required>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="proposal-contact">Numéro WhatsApp <span class="required-marker" aria-hidden="true">*</span></label>
-                            <input id="proposal-contact" name="contact" type="text" required>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="proposal-destination">Nom ou destination de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
-                            <input id="proposal-destination" name="destination" type="text" required>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="proposal-start-date">Date de départ <span class="required-marker" aria-hidden="true">*</span></label>
-                            <input id="proposal-start-date" name="date_debut" type="date" required>
-                        </div>
-
-                        <div class="form-field">
-                            <label for="proposal-end-date">Date de retour <span class="required-marker" aria-hidden="true">*</span></label>
-                            <input id="proposal-end-date" name="date_fin" type="date" required>
-                        </div>
-
-                        <div class="form-field form-field-full">
-                            <label for="proposal-description">Description de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
-                            <textarea id="proposal-description" name="description" rows="4" required></textarea>
-                        </div>
-
-                        <div class="form-field form-field-full">
-                            <label for="proposal-additional-info">Informations complémentaires</label>
-                            <textarea id="proposal-additional-info" name="informations_complementaires" rows="4"></textarea>
-                        </div>
-
-                        <button class="btn btn-primary interest-submit" type="submit" aria-describedby="adventure-proposal-note">
-                            Envoyer ma proposition
-                        </button>
-                    </form>
-
-                    <p class="form-note" id="adventure-proposal-note">
-                        Les informations saisies sont transmises via Formspree. L’envoi ne publie pas automatiquement la proposition.
-                    </p>
-                </section>
-
-            </div>
-
-        </section>
-
-
         <!-- ================= ÉVÉNEMENTS ================= -->
 
         <section class="events section" id="evenements">
@@ -860,6 +642,252 @@
         </section>
 
 
+        <!-- ================= ATR TV ================= -->
+
+        <section class="atr-tv section" id="atr-tv" aria-labelledby="atrTvTitle">
+            <div class="container">
+                <div class="section-heading atr-tv-heading">
+                    <div>
+                        <p class="section-label">VIDÉOS ATR</p>
+                        <h2 id="atrTvTitle">ATR TV</h2>
+                    </div>
+                    <a class="btn btn-secondary" id="atrTvChannel" href="https://www.youtube.com/@AfricaTwin-riders221" target="_blank" rel="noopener noreferrer">S’abonner sur YouTube</a>
+                </div>
+                <div class="atr-tv-filters" id="atrTvFilters" role="group" aria-label="Catégories des vidéos" hidden></div>
+                <p class="atr-tv-state" id="atrTvState" role="status" aria-live="polite">Chargement des vidéos…</p>
+                <button class="btn btn-secondary" id="atrTvRetry" type="button" hidden>Réessayer</button>
+                <div class="atr-tv-grid" id="atrTvGrid" aria-busy="true"></div>
+                <noscript><p>Activez JavaScript pour afficher les vidéos, ou consultez la chaîne YouTube ATR.</p></noscript>
+            </div>
+            <dialog class="atr-tv-player" id="atrTvPlayer" aria-labelledby="atrTvPlayerTitle">
+                <div class="atr-tv-player-header">
+                    <h3 id="atrTvPlayerTitle"></h3>
+                    <button class="atr-tv-close" type="button" id="atrTvClose" aria-label="Fermer la vidéo">×</button>
+                </div>
+                <div class="atr-tv-embed" id="atrTvEmbed"></div>
+                <a id="atrTvExternal" target="_blank" rel="noopener noreferrer">Ouvrir sur YouTube</a>
+            </dialog>
+        </section>
+
+        <!-- ================= AVENTURES DES MEMBRES ================= -->
+
+        <section class="member-adventures section" id="aventures-membres" aria-labelledby="member-adventures-title">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <p class="section-label">PARTAGE DE LA COMMUNAUTÉ</p>
+
+                    <h2 id="member-adventures-title">Les aventures<br>des membres.</h2>
+
+                    <p class="member-adventures-intro">
+                        Les membres ATR peuvent partager leurs aventures personnelles
+                        et les ouvrir à d’autres passionnés. ATR en est le relais de
+                        communication et facilite la mise en relation.
+                    </p>
+
+                    <button class="btn btn-primary adventure-proposal-toggle" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
+                        Proposer mon aventure
+                    </button>
+
+                </div>
+
+                <div class="member-adventure-list" id="memberAdventureList">
+
+                <article class="adventure-card" data-adventure data-start-date="2026-10-08" data-end-date="2026-10-18" aria-labelledby="jeey-trip-title">
+
+                    <span class="adventure-status-announcement" data-adventure-status aria-live="polite"></span>
+
+                    <div class="adventure-feature">
+
+                        <div class="adventure-portrait">
+                            <img class="adventure-photo" src="images/J%20E%20E%20Y.jpeg" alt="J E E Y sur une moto Honda Africa Twin" loading="lazy" decoding="async">
+                        </div>
+
+                        <div class="adventure-feature-copy">
+                            <p class="section-label">INITIATIVE PERSONNELLE</p>
+                            <h3>J E E Y</h3>
+                            <p class="adventure-organizer">Membre ATR · Initiateur de l’aventure</p>
+                            <h4 id="jeey-trip-title">Dakar → Gambie → Casamance → Kédougou</h4>
+
+                            <dl class="adventure-stats">
+                                <div><dt>Dates</dt><dd>8–18 octobre 2026</dd></div>
+                                <div><dt>Durée</dt><dd>11 jours · 10 nuits</dd></div>
+                                <div><dt>Distance</dt><dd>Environ 2 150 km</dd></div>
+                            </dl>
+
+                            <a class="btn btn-primary" href="#jeey-details">Découvrir l’aventure</a>
+                            <a class="btn btn-secondary adventure-roadbook-link" href="documents/roadbooks/Roadbook%20J%20E%20E%20Y.pdf" type="application/pdf" target="_blank" rel="noopener" aria-label="Consulter le roadbook de J E E Y au format PDF, dans un nouvel onglet">Consulter le roadbook PDF</a>
+                            <a class="btn btn-secondary adventure-interest-link" href="#interest-form-start">Je suis intéressé</a>
+                        </div>
+
+                    </div>
+
+                    <div class="adventure-details" id="jeey-details" aria-labelledby="jeey-details-title">
+                        <div class="adventure-overview">
+                            <p class="section-label">LE PARCOURS</p>
+                            <h4 id="jeey-details-title">Du Sénégal à la Casamance</h4>
+                            <p>
+                                Un roadtrip personnel au départ de Dakar, traversant la
+                                Gambie et la Casamance avant de rejoindre Kédougou puis
+                                Dakar. Le parcours annoncé représente environ 2 150 km
+                                sur 11 jours et 10 nuits.
+                            </p>
+
+                            <ol class="adventure-stages">
+                                <li><span>01</span>Banjul · Gambie</li>
+                                <li><span>02</span>Kafountine</li>
+                                <li><span>03</span>Île de Carabane</li>
+                                <li><span>04</span>Cap Skirring</li>
+                                <li><span>05</span>Kédougou</li>
+                            </ol>
+
+                            <p class="adventure-source-note">
+                                Les étapes et informations sont présentées d’après le roadbook de l’aventure.
+                                Son budget estimatif correspond à un budget de voyage, pas à un prix d’inscription.
+                            </p>
+                        </div>
+
+                        <aside class="interest-panel" aria-labelledby="interest-title">
+                            <p class="section-label">PRENDRE CONTACT</p>
+                            <h4 id="interest-title">Intéressé·e ?</h4>
+                            <p>Manifestez votre intérêt pour que l’organisateur puisse vous recontacter au sujet de cette aventure.</p>
+
+                            <form class="interest-form" id="interest-form-start" action="https://formspree.io/f/xjygyraa" method="POST" aria-describedby="interest-form-note">
+                                <input type="hidden" name="_subject" value="Aventure J E E Y — Dakar / Gambie / Casamance / Kédougou">
+
+                                <div class="form-field">
+                                    <label for="interest-name">Nom et prénom</label>
+                                    <input id="interest-name" name="nom_prenom" type="text" autocomplete="name" required>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="interest-whatsapp">Numéro WhatsApp</label>
+                                    <input id="interest-whatsapp" name="numero_whatsapp" type="tel" autocomplete="tel" required>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="interest-city">Ville</label>
+                                    <input id="interest-city" name="ville" type="text" autocomplete="address-level2" required>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="interest-motorcycle">Moto</label>
+                                    <input id="interest-motorcycle" name="moto" type="text" required>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="interest-people">Nombre de personnes</label>
+                                    <input id="interest-people" name="nombre_de_personnes" type="number" min="1" step="1" required>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="interest-meeting-point">Point ou étape de jonction (facultatif)</label>
+                                    <input id="interest-meeting-point" name="point_etape_jonction" type="text">
+                                </div>
+
+                                <div class="form-field form-field-full">
+                                    <label for="interest-message">Message (facultatif)</label>
+                                    <textarea id="interest-message" name="message" rows="4"></textarea>
+                                </div>
+
+                                <div class="form-consent form-field-full">
+                                    <input id="interest-consent" name="consentement_contact" type="checkbox" value="oui" required>
+                                    <label for="interest-consent">J’accepte que l’organisateur utilise mon numéro WhatsApp pour me contacter au sujet de cette aventure.</label>
+                                </div>
+
+                                <button class="btn btn-primary interest-submit" type="submit" aria-describedby="interest-form-note">Je suis intéressé</button>
+                            </form>
+
+                            <p class="form-note" id="interest-form-note">
+                                Ce formulaire transmet les informations saisies via Formspree au sujet de l’aventure. Les coordonnées ne sont pas affichées publiquement.
+                            </p>
+                        </aside>
+                    </div>
+
+                    <p class="adventure-disclaimer">
+                        Cette sortie est une initiative personnelle de J E E Y, membre de la communauté ATR.
+                        ATR intervient uniquement comme relais de communication et de mise en relation.
+                    </p>
+
+                </article>
+
+                </div>
+
+                <div class="member-adventure-archive" id="memberAdventureArchive" aria-hidden="true" hidden></div>
+
+                <div class="adventure-card adventure-empty-state" id="adventureEmptyState" role="status" aria-live="polite" hidden>
+                    <h3>La prochaine aventure pourrait être la vôtre !</h3>
+                    <p>
+                        Vous êtes membre d'Africa Twin Riders Sénégal et vous préparez un roadtrip, une expédition ou une sortie personnelle ?
+                        Partagez votre projet avec la communauté ATR et donnez à d'autres passionnés l'occasion de vous accompagner.
+                    </p>
+                    <button class="btn btn-primary" type="button" data-proposal-toggle aria-controls="adventure-proposal-panel" aria-expanded="false">
+                        Proposer mon aventure
+                    </button>
+                </div>
+
+                <section class="interest-panel adventure-proposal-panel" id="adventure-proposal-panel" aria-labelledby="adventure-proposal-title" hidden>
+                    <p class="section-label">PARTAGER UNE AVENTURE</p>
+                    <h3 id="adventure-proposal-title">Proposer une aventure</h3>
+                    <p class="adventure-proposal-review">
+                        Les propositions ne sont pas publiées automatiquement. Toute proposition doit être examinée et approuvée par l’administrateur ATR avant publication.
+                    </p>
+
+                    <p class="proposal-required-note"><span class="required-marker" aria-hidden="true">*</span> Champ obligatoire</p>
+
+                    <form class="interest-form" id="adventure-proposal-form" action="https://formspree.io/f/xljgjwpe" method="POST" aria-describedby="adventure-proposal-note">
+                        <div class="form-field">
+                            <label for="proposal-name">Nom et prénom du membre ATR <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-name" name="nom_prenom" type="text" autocomplete="name" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-contact">Numéro WhatsApp <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-contact" name="contact" type="text" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-destination">Nom ou destination de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-destination" name="destination" type="text" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-start-date">Date de départ <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-start-date" name="date_debut" type="date" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="proposal-end-date">Date de retour <span class="required-marker" aria-hidden="true">*</span></label>
+                            <input id="proposal-end-date" name="date_fin" type="date" required>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="proposal-description">Description de l'aventure <span class="required-marker" aria-hidden="true">*</span></label>
+                            <textarea id="proposal-description" name="description" rows="4" required></textarea>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="proposal-additional-info">Informations complémentaires</label>
+                            <textarea id="proposal-additional-info" name="informations_complementaires" rows="4"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary interest-submit" type="submit" aria-describedby="adventure-proposal-note">
+                            Envoyer ma proposition
+                        </button>
+                    </form>
+
+                    <p class="form-note" id="adventure-proposal-note">
+                        Les informations saisies sont transmises via Formspree. L’envoi ne publie pas automatiquement la proposition.
+                    </p>
+                </section>
+
+            </div>
+
+        </section>
+
+
         <!-- ================= RIDE & GIVE ================= -->
 
         <section class="ride-give section" id="ride-give">
@@ -995,6 +1023,7 @@
 
     <script src="translations.js"></script>
     <script src="script.js?v=20261010-rose-poster"></script>
+    <script type="module" src="atr-tv.js"></script>
 
 </body>
 </html>

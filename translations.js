@@ -8,6 +8,9 @@ window.atrTranslations = {
             'À propos': 'About',
             'Activités': 'Activities',
             'Événements': 'Events',
+            'VIDÉOS ATR': 'ATR VIDEOS',
+            'S’abonner sur YouTube': 'Subscribe on YouTube',
+            'Activez JavaScript pour afficher les vidéos, ou consultez la chaîne YouTube ATR.': 'Enable JavaScript to display videos, or visit the ATR YouTube channel.',
             'OCTOBRE 2026': 'OCTOBER 2026',
             '2ᵉ CAMP ATR 2026 — NIANING': '2nd ATR CAMP 2026 — NIANING',
             'À VENIR · PROGRAMME PROPOSÉ': 'UPCOMING · PROPOSED PROGRAMME',
@@ -211,5 +214,24 @@ window.atrTranslations = {
             socialInstagram: 'Instagram — ATR official link to be configured',
             socialFacebook: 'Facebook — ATR official link to be configured'
         }
+    }
+};
+
+window.atrTvTranslations = {
+    fr: {
+        loading: 'Chargement des vidéos…', empty: 'Aucune vidéo disponible pour le moment.',
+        filteredEmpty: 'Aucune vidéo dans cette catégorie.', error: 'Les vidéos ne peuvent pas être chargées pour le moment.',
+        retry: 'Réessayer', play: 'Lire la vidéo', featured: 'À la une', close: 'Fermer la vidéo',
+        external: 'Ouvrir sur YouTube', subscribe: 'S’abonner sur YouTube',
+        filterLabel: 'Catégories des vidéos', all: 'Toutes',
+        categories: { 'road-trips': 'Road Trips', 'off-road': 'Off-Road', 'safety-training': 'Sécurité & Formation', events: 'Événements', 'ride-give': 'Ride & Give' }
+    },
+    en: {
+        loading: 'Loading videos…', empty: 'No videos are available yet.',
+        filteredEmpty: 'No videos in this category.', error: 'Videos cannot be loaded at the moment.',
+        retry: 'Try again', play: 'Play video', featured: 'Featured', close: 'Close video',
+        external: 'Open on YouTube', subscribe: 'Subscribe on YouTube',
+        filterLabel: 'Video categories', all: 'All',
+        categories: { 'road-trips': 'Road Trips', 'off-road': 'Off-Road', 'safety-training': 'Safety & Training', events: 'Events', 'ride-give': 'Ride & Give' }
     }
 };

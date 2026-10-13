@@ -383,6 +383,8 @@ const setSiteLanguage = (language, remember = true) => {
             : `Statut : ${adventureStatusLabels.fr[status]}`;
     });
 
+    document.dispatchEvent(new CustomEvent('atr:languagechange', { detail: { language: selectedLanguage } }));
+
     if (remember) {
         try {
             localStorage.setItem('atr-language', selectedLanguage);
