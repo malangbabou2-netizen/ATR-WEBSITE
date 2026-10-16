@@ -13,9 +13,8 @@ let phase = 'loading';
 let selectedVideo = null;
 let requestNumber = 0;
 
-const language = () => document.documentElement.lang === 'en' ? 'en' : 'fr';
-const labels = () => window.atrTvTranslations[language()];
-const translated = (video, field) => video.translations[language()]?.[field]?.trim() || video.translations.fr[field] || '';
+const labels = () => window.atrTvTranslations.fr;
+const translated = (video, field) => video.translations.fr[field]?.trim() || '';
 
 function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -179,6 +178,5 @@ if (section) {
         const bounds = player.getBoundingClientRect();
         if (event.target === player && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) player.close();
     });
-    document.addEventListener('atr:languagechange', render);
     loadVideos();
 }

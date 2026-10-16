@@ -1,3 +1,5 @@
+// Les traductions anglaises historiques sont conservées pour compatibilité.
+// Le site et ATR TV utilisent uniquement le français.
 /* Traductions locales du site. Les données techniques et les noms propres restent inchangés. */
 window.atrTranslations = {
     en: {

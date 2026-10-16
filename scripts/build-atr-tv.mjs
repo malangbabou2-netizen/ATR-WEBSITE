@@ -6,7 +6,6 @@ import { youtubeVideo, safeImage, TV_CATEGORIES, ATR_CHANNEL_URL } from '../atr-
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const textFields = ['title', 'summary', 'image_alt'];
-const commonFields = ['youtube_url', 'category', 'featured', 'sort_order', 'archived', 'image'];
 
 export async function buildCatalog(folder) {
     const groups = new Map();
@@ -23,9 +22,8 @@ export async function buildCatalog(folder) {
     const videos = [];
     for (const [slug, { fr, en = {} }] of groups) {
         if (!fr || typeof fr.title !== 'string' || !fr.title.trim()) throw new Error(`Missing French title: ${slug}`);
-        for (const field of commonFields) {
-            if (en[field] !== undefined && en[field] !== fr[field]) throw new Error(`FR/EN shared field mismatch: ${slug}/${field}`);
-        }
+        // Le français fait autorité. Les anciens champs anglais dupliqués peuvent
+        // diverger après une édition française ; ils restent conservés dans les sources.
         if (!TV_CATEGORIES.includes(fr.category)) throw new Error(`Invalid category: ${slug}`);
         for (const field of ['featured', 'archived']) {
             if (typeof fr[field] !== 'boolean') throw new Error(`Invalid boolean: ${slug}/${field}`);
@@ -78,7 +76,7 @@ async function main() {
     const catalog = await buildCatalog(resolve(project, 'content/atr-tv'));
     if (args[0] === '--site-dir') await stageSite(resolve(project, args[1]), catalog);
     else await writeFile(resolve(project, args[1] || 'atr-tv-catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
-    console.log(`ATR TV: ${catalog.videos.length} active video(s), FR/EN catalog generated.`);
+    console.log(`ATR TV: ${catalog.videos.length} active video(s), catalogue français généré (compatibilité des traductions conservée).`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

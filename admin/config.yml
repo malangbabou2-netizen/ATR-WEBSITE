@@ -14,8 +14,9 @@ display_url: https://africatwinriders.sn
 locale: fr
 
 i18n:
+  # Conserver les noms *.fr.json et les archives *.en.json sans migration destructive.
   structure: multiple_files
-  locales: [fr, en]
+  locales: [fr]
   default_locale: fr
 
 media_folder: uploads

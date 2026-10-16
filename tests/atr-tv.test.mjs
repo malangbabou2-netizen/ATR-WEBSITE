@@ -44,12 +44,13 @@ test('English fallback is applied per field and archived entries are omitted', a
     assert.equal((await buildCatalog(folder)).videos.length, 1);
 }));
 
-test('invalid JSON, missing French content, differing shared fields and invalid categories block generation', async () => withContent(async (folder) => {
+test('invalid JSON, missing French content and invalid categories block generation', async () => withContent(async (folder) => {
     await writeFile(resolve(folder, 'one.fr.json'), '{');
     await assert.rejects(buildCatalog(folder));
     await save(folder, 'one.fr.json', fixture);
     await save(folder, 'one.en.json', { ...fixture, archived: true });
-    await assert.rejects(buildCatalog(folder), /shared field mismatch/);
+    const video = (await buildCatalog(folder)).videos[0];
+    assert.equal(video.archived, false);
     await save(folder, 'one.en.json', {});
     await save(folder, 'one.fr.json', { ...fixture, category: 'unapproved-category' });
     await assert.rejects(buildCatalog(folder), /Invalid category/);
@@ -108,3 +109,35 @@ test('ATR TV is immediately between events and member adventures in markup and n
     const navIndex = links.indexOf('#evenements');
     assert.deepEqual(links.slice(navIndex, navIndex + 3), ['#evenements', '#atr-tv', '#aventures-membres']);
 });
+
+test('French-only CMS preserves localized paths, all collections and publication controls', async () => {
+    const config = await readFile(new URL('../admin/config.yml', import.meta.url), 'utf8');
+    assert.match(config, /locales: \[fr\]/);
+    assert.match(config, /structure: multiple_files/);
+    assert.match(config, /default_locale: fr/);
+    assert.match(config, /publish_mode: editorial_workflow/);
+    assert.match(config, /branch: main/);
+    assert.match(config, /open_authoring: true/);
+    assert.deepEqual([...config.matchAll(/^  - name: (.+)$/gm)].map((m) => m[1]),
+        ['events', 'member_adventures', 'atr_tv', 'moto_news', 'partner_banners', 'ride_and_give']);
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    assert.match(html, /<html lang="fr">/);
+    assert.doesNotMatch(html, /data-language=/);
+});
+
+test('French edits remain publishable when legacy English shared fields are stale', async () => withContent(async (folder) => {
+    await save(folder, 'one.en.json', { ...fixture, title: 'Archived English title' });
+    const french = { ...fixture, title: 'Titre français modifié', category: 'road-trips',
+        youtube_url: 'https://youtu.be/eyeOfSerVw0?t=20', sort_order: 3, featured: false };
+    await save(folder, 'one.fr.json', french);
+    const video = (await buildCatalog(folder)).videos[0];
+    assert.equal(video.translations.fr.title, french.title);
+    assert.equal(video.translations.en.title, 'Archived English title');
+    assert.equal(video.category, french.category);
+    assert.equal(video.youtube_url, french.youtube_url);
+    assert.equal(video.sort_order, 3);
+    assert.equal(video.featured, false);
+    assert.deepEqual(JSON.parse(await readFile(resolve(folder, 'one.en.json'), 'utf8')), { ...fixture, title: 'Archived English title' });
+    await save(folder, 'one.fr.json', { ...french, archived: true });
+    assert.equal((await buildCatalog(folder)).videos.length, 0);
+}));
