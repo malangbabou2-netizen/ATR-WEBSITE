@@ -1,0 +1,10 @@
+{
+  "archived": true,
+  "title": "TEST INTERNE ATR — NE PAS PUBLIER",
+  "summary": "Test du système de gestion des événements ATR.",
+  "body": "Cet événement fictif sert uniquement à vérifier le fonctionnement des brouillons et du circuit de validation.",
+  "start_date": "2026-10-16",
+  "end_date": "2026-10-16",
+  "location": "TEST INTERNE — ÉVÉNEMENT FICTIF ATR",
+  "objectives": []
+}
