@@ -2,7 +2,7 @@
 
 ## Portée et dépendances
 
-- `index.html` : retrait du sélecteur FR/EN ; le contenu français, les liens et les formulaires restent en place.
+- `index.html` : retrait du sélecteur FR/EN et version des scripts renouvelée pour éviter un ancien code anglais en cache ; le contenu français, les liens et les formulaires restent en place.
 - `script.js` : retrait du remplacement de texte anglais ; menu et statuts des aventures en français ; ancienne préférence `atr-language=en` remplacée par `fr`, sans dépendre de la disponibilité du stockage.
 - `translations.js` : dictionnaires historiques conservés intégralement ; aucun code public ne sélectionne plus leurs valeurs anglaises.
 - `atr-tv.js` : libellés et textes français du catalogue uniquement. Filtres, tri, archives, mise en avant, miniatures, lecteur, lien externe et fermeture conservés.
