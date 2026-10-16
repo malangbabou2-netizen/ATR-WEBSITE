@@ -66,10 +66,8 @@ updateHeroCampaign();
 document.addEventListener('visibilitychange', updateHeroCampaign);
 window.addEventListener('pageshow', updateHeroCampaign);
 
-let activeLanguage = 'fr';
 const adventureStatusLabels = {
-    fr: { upcoming: 'À venir', ongoing: 'En cours', completed: 'Terminée' },
-    en: { upcoming: 'Upcoming', ongoing: 'Ongoing', completed: 'Completed' }
+    fr: { upcoming: 'À venir', ongoing: 'En cours', completed: 'Terminée' }
 };
 
 const menuButton = document.querySelector('#menuButton');
@@ -79,9 +77,7 @@ if (menuButton && navigation) {
     const setMenuOpen = (isOpen) => {
         navigation.classList.toggle('is-open', isOpen);
         menuButton.setAttribute('aria-expanded', String(isOpen));
-        const labels = activeLanguage === 'en'
-            ? { open: 'Open menu', close: 'Close menu' }
-            : { open: 'Ouvrir le menu', close: 'Fermer le menu' };
+        const labels = { open: 'Ouvrir le menu', close: 'Fermer le menu' };
         menuButton.setAttribute('aria-label', isOpen ? labels.close : labels.open);
     };
 
@@ -185,9 +181,7 @@ if (memberAdventureList && memberAdventureArchive && adventureEmptyState && adve
 
             const statusAnnouncement = adventure.querySelector('[data-adventure-status]');
             if (statusAnnouncement) {
-                statusAnnouncement.textContent = activeLanguage === 'en'
-                    ? `Status: ${adventureStatusLabels.en[status]}`
-                    : `Statut : ${adventureStatusLabels.fr[status]}`;
+                statusAnnouncement.textContent = `Statut : ${adventureStatusLabels.fr[status]}`;
             }
 
             if (status !== 'completed') {
@@ -278,130 +272,10 @@ document.querySelectorAll('[data-social-platform]').forEach((icon) => {
     icon.replaceWith(link);
 });
 
-const textNodes = [];
-const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-while (textWalker.nextNode()) {
-    const node = textWalker.currentNode;
-    if (node.nodeValue.trim()) {
-        textNodes.push({ node, french: node.nodeValue });
-    }
-}
-
-const localizedAttributeTargets = [
-    ['meta[name="description"]', 'content', 'description'],
-    ['meta[property="og:title"]', 'content', 'ogTitle'],
-    ['meta[property="og:description"]', 'content', 'ogDescription'],
-    ['meta[property="og:image:alt"]', 'content', 'imageAlt'],
-    ['meta[name="twitter:title"]', 'content', 'ogTitle'],
-    ['meta[name="twitter:description"]', 'content', 'ogDescription'],
-    ['meta[name="twitter:image:alt"]', 'content', 'imageAlt'],
-    ['.adventure-photo', 'alt', 'adventurePhotoAlt'],
-    ['.logo', 'aria-label', 'logoLabel'],
-    ['.logo-image', 'alt', 'logoImageAlt'],
-    ['.skip-link', 'aria-label', 'skipLabel'],
-    ['#siteNavigation', 'aria-label', 'navigationLabel'],
-    ['.adventure-roadbook-link', 'aria-label', 'roadbookLabel'],
-    ['.contact-buttons', 'aria-label', 'contactGroupLabel'],
-    ['.header-social', 'aria-label', 'socialGroupLabel'],
-    ['.footer-social', 'aria-label', 'socialGroupLabel'],
-    ['.language-switch', 'aria-label', 'languageGroupLabel'],
-    ['button[data-language="fr"]', 'aria-label', 'frenchLanguageLabel'],
-    ['button[data-language="en"]', 'aria-label', 'englishLanguageLabel']
-];
-
-const originalAttributes = localizedAttributeTargets.map(([selector, attribute]) => {
-    const element = document.querySelector(selector);
-    return { element, attribute, french: element?.getAttribute(attribute) };
-});
-
-const preserveWhitespace = (original, translated) => {
-    const leading = original.match(/^\s*/)?.[0] || '';
-    const trailing = original.match(/\s*$/)?.[0] || '';
-    return `${leading}${translated}${trailing}`;
-};
-
-const setSiteLanguage = (language, remember = true) => {
-    const selectedLanguage = language === 'en' ? 'en' : 'fr';
-    activeLanguage = selectedLanguage;
-    document.documentElement.lang = selectedLanguage;
-
-    const englishText = window.atrTranslations?.en?.text || {};
-    textNodes.forEach(({ node, french }) => {
-        if (selectedLanguage === 'fr') {
-            node.nodeValue = french;
-            return;
-        }
-
-        const key = french.replace(/\s+/g, ' ').trim();
-        if (Object.prototype.hasOwnProperty.call(englishText, key)) {
-            node.nodeValue = preserveWhitespace(french, englishText[key]);
-        }
-    });
-
-    const englishAttributes = window.atrTranslations?.en?.attributes || {};
-    localizedAttributeTargets.forEach(([selector, attribute, key], index) => {
-        const target = originalAttributes[index];
-        if (!target.element) return;
-        const value = selectedLanguage === 'en' ? englishAttributes[key] : target.french;
-        if (value) target.element.setAttribute(attribute, value);
-        else if (selectedLanguage === 'fr' && target.french === null) target.element.removeAttribute(attribute);
-    });
-
-    document.title = selectedLanguage === 'en'
-        ? englishAttributes.title
-        : 'Africa Twin Riders Sénégal | ATR';
-
-    if (menuButton) {
-        const menuIsOpen = menuButton.getAttribute('aria-expanded') === 'true';
-        const menuLabels = selectedLanguage === 'en'
-            ? { open: 'Open menu', close: 'Close menu' }
-            : { open: 'Ouvrir le menu', close: 'Fermer le menu' };
-        menuButton.setAttribute('aria-label', menuIsOpen ? menuLabels.close : menuLabels.open);
-    }
-
-    const socialNames = { youtube: 'YouTube', instagram: 'Instagram', facebook: 'Facebook' };
-    document.querySelectorAll('[data-social-platform]').forEach((icon) => {
-        const platform = icon.dataset.socialPlatform;
-        const hasUrl = Boolean(atrSocialProfileUrls[platform]?.trim());
-        const socialLabel = hasUrl
-            ? `${socialNames[platform]} — Africa Twin Riders Sénégal`
-            : selectedLanguage === 'en'
-                ? `${socialNames[platform]} — ATR official link to be configured`
-                : `${socialNames[platform]} — lien officiel ATR à configurer`;
-        icon.setAttribute('aria-label', socialLabel);
-    });
-
-    document.querySelectorAll('[data-language]').forEach((button) => {
-        button.setAttribute('aria-pressed', String(button.dataset.language === selectedLanguage));
-    });
-
-    document.querySelectorAll('[data-adventure-status]').forEach((announcement) => {
-        const status = announcement.closest('[data-adventure]')?.dataset.status;
-        if (!status) return;
-        announcement.textContent = selectedLanguage === 'en'
-            ? `Status: ${adventureStatusLabels.en[status]}`
-            : `Statut : ${adventureStatusLabels.fr[status]}`;
-    });
-
-    document.dispatchEvent(new CustomEvent('atr:languagechange', { detail: { language: selectedLanguage } }));
-
-    if (remember) {
-        try {
-            localStorage.setItem('atr-language', selectedLanguage);
-        } catch (error) {
-            // La langue reste utilisable pendant la session si le stockage local est indisponible.
-        }
-    }
-};
-
-document.querySelectorAll('[data-language]').forEach((button) => {
-    button.addEventListener('click', () => setSiteLanguage(button.dataset.language));
-});
-
-let preferredLanguage = 'fr';
+// Les anciennes préférences anglaises ne doivent plus changer la langue du site.
+document.documentElement.lang = 'fr';
 try {
-    preferredLanguage = localStorage.getItem('atr-language') || 'fr';
-} catch (error) {
-    preferredLanguage = 'fr';
+    localStorage.setItem('atr-language', 'fr');
+} catch {
+    // Le site reste en français si le stockage local est indisponible.
 }
-setSiteLanguage(preferredLanguage, false);

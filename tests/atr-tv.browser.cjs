@@ -29,7 +29,7 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
     const ready = (page) => page.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'false');
     const noOverflow = (page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
 
-    const checkNavigation = async (page, language) => {
+    const checkNavigation = async (page) => {
         const sections = await page.locator('main > section[id]').evaluateAll((nodes) => nodes.map((node) => node.id));
         const index = sections.indexOf('evenements');
         assert.deepEqual(sections.slice(index, index + 3), ['evenements', 'atr-tv', 'aventures-membres']);
@@ -40,9 +40,9 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         for (const id of ['evenements', 'atr-tv', 'aventures-membres']) {
             const link = page.locator(`#siteNavigation a[href="#${id}"]`);
             if (!await link.isVisible()) await menu.click();
-            assert.equal(await page.locator('html').getAttribute('lang'), language);
-            if (id === 'evenements') assert.equal(await link.textContent(), language === 'en' ? 'Events' : 'Événements');
-            if (id === 'aventures-membres') assert.equal(await link.textContent(), language === 'en' ? 'Members’ adventures' : 'Aventures des membres');
+            assert.equal(await page.locator('html').getAttribute('lang'), 'fr');
+            if (id === 'evenements') assert.equal(await link.textContent(), 'Événements');
+            if (id === 'aventures-membres') assert.equal(await link.textContent(), 'Aventures des membres');
             await link.click();
             await page.waitForFunction((target) => location.hash === `#${target}`, id);
             if (await menu.isVisible()) assert.equal(await menu.getAttribute('aria-expanded'), 'false');
@@ -66,18 +66,18 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
             assert.equal(await page.locator('.atr-tv-card').count(), 1);
             assert.equal(await page.locator('.atr-tv-copy h3').textContent(), 'Camp ATR LAC ROSE P1');
             assert.equal(await noOverflow(page), true, `Horizontal overflow at ${width}px`);
-            await checkNavigation(page, 'fr');
+            await checkNavigation(page);
             await page.evaluate(() => window.scrollTo(0, document.querySelector('#atr-tv').offsetTop - 90));
             await page.locator('.atr-tv-cover img').evaluate((image) => image.decode().catch(() => {}));
             await page.locator('#atr-tv').screenshot({ path: path.join(screenshots, `atr-tv-${width}.png`) });
             const loadedImage = await page.locator('.atr-tv-cover img').evaluate((image) => image.naturalWidth > 0);
             console.log(`Viewport ${width}px: card visible, no overflow; thumbnail loaded=${loadedImage}`);
-            await page.locator('[data-language="en"]').click();
-            assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+            assert.equal(await page.locator('[data-language]').count(), 0);
+            assert.equal(await page.locator('html').getAttribute('lang'), 'fr');
             assert.equal(await page.locator('.atr-tv-copy h3').textContent(), 'Camp ATR LAC ROSE P1');
-            assert.match(await page.locator('.atr-tv-play').textContent(), /Play video/);
-            assert.equal(await page.locator('.atr-tv-category').textContent(), 'Events');
-            await checkNavigation(page, 'en');
+            assert.match(await page.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+            assert.equal(await page.locator('.atr-tv-category').textContent(), 'Événements');
+            await checkNavigation(page);
             await page.locator('.atr-tv-play').click();
             assert.equal(await page.locator('#atrTvPlayer').evaluate((dialog) => dialog.open), true);
             const dimensions = await page.locator('#atrTvEmbed iframe').evaluate((iframe) => {
@@ -98,10 +98,9 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
             await page.keyboard.press('Escape');
             await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
             assert.equal(await page.locator('#atrTvEmbed iframe').count(), 0);
-            await page.locator('[data-language="fr"]').click();
             assert.match(await page.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
             assert.equal(await page.locator('.atr-tv-category').textContent(), 'Événements');
-            await checkNavigation(page, 'fr');
+            await checkNavigation(page);
             await page.locator('.atr-tv-play').click();
             await page.locator('#atrTvClose').click();
             await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
@@ -112,17 +111,29 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
             assert.equal(await page.locator('.hero-campaign-actions .hero-buttons').count(), 1);
             await page.context().close();
         }
-        console.log('FR → EN → FR, French title fallback, playback offset, dialog close, forms and active Hero: passed');
+        console.log('French-only UI, French title, playback offset, dialog close, forms and active Hero: passed');
 
         const persisted = await makePage(390);
         await goto(persisted);
         await ready(persisted);
-        await persisted.locator('[data-language="en"]').click();
+        await persisted.evaluate(() => localStorage.setItem('atr-language', 'en'));
         await persisted.reload();
         await ready(persisted);
-        assert.equal(await persisted.locator('html').getAttribute('lang'), 'en');
-        assert.match(await persisted.locator('.atr-tv-play').textContent(), /Play video/);
+        assert.equal(await persisted.locator('html').getAttribute('lang'), 'fr');
+        assert.match(await persisted.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+        assert.equal(await persisted.evaluate(() => localStorage.getItem('atr-language')), 'fr');
+        assert.match(await persisted.locator('[data-adventure-status]').first().textContent(), /^Statut : /);
         await persisted.context().close();
+
+        const noStorage = await makePage(390);
+        await noStorage.addInitScript(() => {
+            Storage.prototype.setItem = () => { throw new Error('Storage unavailable'); };
+        });
+        await goto(noStorage);
+        await ready(noStorage);
+        assert.equal(await noStorage.locator('html').getAttribute('lang'), 'fr');
+        assert.match(await noStorage.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+        await noStorage.context().close();
 
         const catalog = JSON.parse(await fs.readFile(path.join(__dirname, '../atr-tv-catalog.json'), 'utf8'));
         const fixture = catalog.videos[0];
@@ -140,12 +151,11 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         assert.equal(await filterPage.locator('.atr-tv-summary img').count(), 0);
         await filterPage.locator('[data-tv-category="events"]').click();
         assert.equal(await filterPage.locator('.atr-tv-card').count(), 2);
-        await filterPage.locator('[data-language="en"]').click();
         assert.equal(await filterPage.locator('[data-tv-category="events"]').getAttribute('aria-pressed'), 'true');
         await filterPage.locator('[data-tv-category="road-trips"]').click();
-        assert.equal(await filterPage.locator('.atr-tv-copy h3').textContent(), 'English test');
+        assert.equal(await filterPage.locator('.atr-tv-copy h3').textContent(), 'Test français');
         await filterPage.context().close();
-        console.log('Featured/order/category/archive rules, real translations and text safety: passed');
+        console.log('Featured/order/category/archive rules, French titles and text safety: passed');
 
         const empty = await makePage(390);
         await empty.route('**/atr-tv-catalog.json', (route) => route.fulfill({ json: { version: 1, videos: [] } }));
@@ -153,8 +163,6 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await ready(empty);
         assert.equal(await empty.locator('#atrTvState').textContent(), 'Aucune vidéo disponible pour le moment.');
         assert.equal(await empty.locator('#atrTvFilters').isVisible(), false);
-        await empty.locator('[data-language="en"]').click();
-        assert.equal(await empty.locator('#atrTvState').textContent(), 'No videos are available yet.');
         await empty.context().close();
 
         const failure = await makePage(390);
@@ -162,8 +170,7 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await goto(failure);
         await ready(failure);
         assert.equal(await failure.locator('#atrTvRetry').isVisible(), true);
-        await failure.locator('[data-language="en"]').click();
-        assert.equal(await failure.locator('#atrTvState').textContent(), 'Videos cannot be loaded at the moment.');
+        assert.equal(await failure.locator('#atrTvState').textContent(), 'Les vidéos ne peuvent pas être chargées pour le moment.');
         await failure.unroute('**/atr-tv-catalog.json');
         await failure.locator('#atrTvRetry').click();
         await ready(failure);
@@ -176,12 +183,11 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await loading.route('**/atr-tv-catalog.json', async (route) => { await hold; await route.fulfill({ json: catalog }); });
         await goto(loading);
         await loading.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'true');
-        await loading.locator('[data-language="en"]').click();
-        assert.equal(await loading.locator('#atrTvState').textContent(), 'Loading videos…');
+        assert.equal(await loading.locator('#atrTvState').textContent(), 'Chargement des vidéos…');
         release();
         await ready(loading);
         await loading.context().close();
-        console.log('Language persistence, empty, error/retry and loading states: passed');
+        console.log('Legacy English preference migration, empty, error/retry and loading states: passed');
 
         for (const [date, active] of [['2026-10-31T23:59:59Z', true], ['2026-11-01T00:00:00Z', false]]) {
             const hero = await makePage(390, date);
