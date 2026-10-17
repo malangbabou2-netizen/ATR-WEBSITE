@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, readFile, readdir, copyFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { buildContentCatalog } from '../scripts/build-cms-content.mjs';
 import { stageSite, buildCatalog } from '../scripts/build-atr-tv.mjs';
 import { CMS_COLLECTIONS, contentStatus, visibleContent, safeContentUrl, dateKey, dakarDay } from '../cms-content-utils.mjs';
+import { TEST_COLLECTIONS, TEST_COUNTS, seedPublications, publicationFixture } from './content-fixtures.mjs';
 
 const fixtures = {
     events: { title: 'Donnée de test locale', summary: 'Résumé français', body: '**Description**', location: 'Lieu de test', start_date: '2026-10-17', end_date: '2026-10-18' },
@@ -40,16 +42,26 @@ for (const collection of CMS_COLLECTIONS) test(`${collection}: create, edit, bil
     assert.equal((await buildContentCatalog(root)).collections[collection].length, 0);
 }));
 
-test('real published Nianing article is preserved verbatim and appears exactly once', async () => {
+test('published event catalog preserves every eligible French source without assuming its size', async () => {
     const catalog = await buildContentCatalog(resolve('content'));
-    const articles = catalog.collections.events.filter((entry) => entry.slug.startsWith('camp-atr-à-nianing'));
-    assert.equal(articles.length, 1);
-    const source = JSON.parse(await readFile(resolve('content/events', `${articles[0].slug}.fr.json`), 'utf8'));
-    assert.equal(articles[0].translations.fr.body, source.body);
-    assert.equal(articles[0].translations.en.title, source.title);
-    assert.equal(articles[0].start_date, '2026-10-17');
-    assert.equal(articles[0].end_date, '2026-10-18');
-    assert.equal(articles[0].location, 'Nianing');
+    const expected = new Map();
+    for (const name of await readdir(resolve('content/events'))) {
+        if (!name.endsWith('.fr.json')) continue;
+        const source = JSON.parse(await readFile(resolve('content/events', name), 'utf8'));
+        const englishName = name.replace(/\.fr\.json$/, '.en.json');
+        let english = {};
+        try { english = JSON.parse(await readFile(resolve('content/events', englishName), 'utf8')); }
+        catch (error) { if (error.code !== 'ENOENT') throw error; }
+        if (source.archived === true || /TEST INTERNE ATR\s*[—–-]\s*NE PAS PUBLIER/i.test(`${source.title || ''} ${english.title || ''}`)) continue;
+        expected.set(name.slice(0, -'.fr.json'.length), source);
+    }
+    assert.deepEqual(catalog.collections.events.map((entry) => entry.slug).sort(), [...expected.keys()].sort());
+    for (const entry of catalog.collections.events) {
+        const source = expected.get(entry.slug);
+        assert.equal(entry.translations.fr.title, source.title);
+        assert.equal(entry.translations.fr.body, source.body || '');
+        for (const key of ['start_date', 'end_date', 'location']) assert.equal(entry[key], source[key]);
+    }
 });
 
 test('forbidden internal test never enters catalog, even if accidentally unarchived', () => temporary(async (root) => {
@@ -104,14 +116,61 @@ test('artifact contains both catalogs and all public dependencies, excludes inte
             assert.deepEqual(await readFile(resolve(output, file)), await readFile(file), file);
         }
         for (const file of ['content/events/any.fr.json', 'auth-worker/src/index.js', 'AGENTS.md', '.DS_Store', '.git/config']) await assert.rejects(readFile(resolve(output, file)), { code: 'ENOENT' });
-        assert.equal(JSON.parse(await readFile(resolve(output, 'atr-tv-catalog.json'), 'utf8')).videos.length, 1);
-        assert.equal(JSON.parse(await readFile(resolve(output, 'cms-content-catalog.json'), 'utf8')).collections.events.length, 1);
+        assert.deepEqual(JSON.parse(await readFile(resolve(output, 'atr-tv-catalog.json'), 'utf8')), catalog);
+        assert.deepEqual(JSON.parse(await readFile(resolve(output, 'cms-content-catalog.json'), 'utf8')), await buildContentCatalog(resolve('content')));
         await writeFile(resolve(output, 'stale-private-file.txt'), 'local fixture');
         await stageSite(output, catalog);
         await assert.rejects(readFile(resolve(output, 'stale-private-file.txt')), { code: 'ENOENT' });
         await assert.rejects(stageSite(resolve('images'), catalog), /Use _site/);
     } finally { await rm(output, { recursive: true, force: true }); }
 });
+
+for (const count of TEST_COUNTS) test(`full site generation: ${count} active publications per collection plus archives`, () => temporary(async (root) => {
+    // Run the real CLI from a disposable repository. No test content is written to the real project.
+    const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
+    for (const file of tracked) {
+        if (file.startsWith('content/')) continue;
+        const target = resolve(root, file);
+        await mkdir(dirname(target), { recursive: true });
+        await copyFile(resolve(file), target);
+    }
+    execFileSync('git', ['init', '--quiet'], { cwd: root });
+    const contentRoot = resolve(root, 'content');
+    const expected = await seedPublications(contentRoot, count);
+    execFileSync('git', ['add', '--', 'index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'robots.txt', 'sitemap.xml', 'CNAME', 'images', 'documents', 'admin', 'content'], { cwd: root });
+    const output = resolve(root, '_site');
+    const build = async () => {
+        execFileSync(process.execPath, ['scripts/build-atr-tv.mjs', '--site-dir', '_site'], { cwd: root, encoding: 'utf8' });
+        const cms = JSON.parse(await readFile(resolve(output, 'cms-content-catalog.json'), 'utf8'));
+        const tv = JSON.parse(await readFile(resolve(output, 'atr-tv-catalog.json'), 'utf8'));
+        for (const collection of TEST_COLLECTIONS) {
+            const items = collection === 'atr-tv' ? tv.videos : cms.collections[collection];
+            assert.deepEqual(items.map((item) => item.slug).sort(), [...expected[collection]].sort(), collection);
+            assert.equal(new Set(items.map((item) => item.slug)).size, items.length, `No duplicates in ${collection}`);
+            assert.ok(items.every((item) => item.archived === false), `No archives in ${collection}`);
+        }
+        assert.equal(await readFile(resolve(output, 'index.html'), 'utf8'), await readFile('index.html', 'utf8'));
+        return { cms, tv };
+    };
+    await build();
+    if (count) {
+        for (const collection of TEST_COLLECTIONS) {
+            const file = resolve(contentRoot, collection, 'sample-0.fr.json');
+            const updated = { ...publicationFixture(collection, 0), summary: 'Résumé modifié localement' };
+            await writeFile(file, JSON.stringify(updated));
+        }
+        const edited = await build();
+        for (const collection of TEST_COLLECTIONS) {
+            const items = collection === 'atr-tv' ? edited.tv.videos : edited.cms.collections[collection];
+            assert.equal(items.find((item) => item.slug === 'sample-0').translations.fr.summary, 'Résumé modifié localement');
+            for (let index = 0; index < count; index += 1) {
+                await writeFile(resolve(contentRoot, collection, `sample-${index}.fr.json`), JSON.stringify(publicationFixture(collection, index, true)));
+            }
+            expected[collection] = [];
+        }
+        await build(); // All archived: both catalogs remain valid and every collection is empty.
+    }
+}));
 
 test('public integration preserves original forms, legacy sections and Hero timer', async () => {
     const html = await readFile('index.html', 'utf8');

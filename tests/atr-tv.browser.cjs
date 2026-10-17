@@ -7,6 +7,14 @@ const previewUrl = process.env.ATR_TV_URL || 'http://127.0.0.1:8080/';
 const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-preview';
 
 (async () => {
+    const { fixtureCatalogs } = await import('./content-fixtures.mjs');
+    const { visibleVideos } = await import('../atr-tv-utils.mjs');
+    const fixtureData = await fixtureCatalogs(1);
+    const fixture = fixtureData.tv.videos[0];
+    const response = await fetch(new URL('atr-tv-catalog.json', previewUrl));
+    assert.equal(response.ok, true, 'Build and serve the site before running browser checks');
+    const catalog = await response.json();
+    const expectedVideos = visibleVideos(catalog.videos);
     await fs.mkdir(screenshots, { recursive: true });
     const layoutBaseline = process.env.ATR_TV_LAYOUT_BASELINE
         ? JSON.parse(await fs.readFile(process.env.ATR_TV_LAYOUT_BASELINE, 'utf8')) : null;
@@ -28,6 +36,10 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
     const goto = (page) => page.goto(previewUrl, { waitUntil: 'domcontentloaded' });
     const ready = (page) => page.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'false');
     const noOverflow = (page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+    const checkCatalog = async (page) => {
+        assert.deepEqual(await page.locator('.atr-tv-card').evaluateAll((nodes) => nodes.map((node) => node.dataset.videoSlug)), expectedVideos.map((entry) => entry.slug));
+        assert.deepEqual(await page.locator('.atr-tv-copy h3').allTextContents(), expectedVideos.map((entry) => entry.translations.fr.title));
+    };
 
     const checkNavigation = async (page) => {
         const sections = await page.locator('main > section[id]').evaluateAll((nodes) => nodes.map((node) => node.id));
@@ -63,55 +75,58 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
                     .map((node) => ({ id: node.id || 'header', top: node.offsetTop, width: node.offsetWidth, height: node.offsetHeight })));
                 assert.deepEqual(layout, layoutBaseline[width], `Other sections changed at ${width}px`);
             }
-            assert.equal(await page.locator('.atr-tv-card').count(), 1);
-            assert.equal(await page.locator('.atr-tv-copy h3').textContent(), 'Camp ATR LAC ROSE P1');
+            await checkCatalog(page);
             assert.equal(await noOverflow(page), true, `Horizontal overflow at ${width}px`);
             await checkNavigation(page);
             await page.evaluate(() => window.scrollTo(0, document.querySelector('#atr-tv').offsetTop - 90));
-            await page.locator('.atr-tv-cover img').evaluate((image) => image.decode().catch(() => {}));
+            await page.locator('.atr-tv-cover img').evaluateAll((images) => Promise.all(images.map((image) => image.decode().catch(() => {}))));
             await page.locator('#atr-tv').screenshot({ path: path.join(screenshots, `atr-tv-${width}.png`) });
-            const loadedImage = await page.locator('.atr-tv-cover img').evaluate((image) => image.naturalWidth > 0);
-            console.log(`Viewport ${width}px: card visible, no overflow; thumbnail loaded=${loadedImage}`);
+            const loadedImages = await page.locator('.atr-tv-cover img').evaluateAll((images) => images.map((image) => image.naturalWidth > 0));
+            console.log(`Viewport ${width}px: ${expectedVideos.length} cards, no overflow; thumbnails loaded=${loadedImages}`);
             assert.equal(await page.locator('[data-language]').count(), 0);
             assert.equal(await page.locator('html').getAttribute('lang'), 'fr');
-            assert.equal(await page.locator('.atr-tv-copy h3').textContent(), 'Camp ATR LAC ROSE P1');
-            assert.match(await page.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
-            assert.equal(await page.locator('.atr-tv-category').textContent(), 'Événements');
             await checkNavigation(page);
-            await page.locator('.atr-tv-play').click();
-            assert.equal(await page.locator('#atrTvPlayer').evaluate((dialog) => dialog.open), true);
-            const dimensions = await page.locator('#atrTvEmbed iframe').evaluate((iframe) => {
-                const bounds = iframe.getBoundingClientRect();
-                const container = iframe.parentElement.getBoundingClientRect();
-                const dialog = document.querySelector('#atrTvPlayer');
-                return { width: bounds.width, height: bounds.height, containerHeight: container.height,
-                    dialogOverflows: dialog.scrollWidth > dialog.clientWidth,
-                    pageOverflows: document.documentElement.scrollWidth > innerWidth };
-            });
-            assert.ok(dimensions.height >= 200 && dimensions.containerHeight >= 200, `Player too short at ${width}px`);
-            assert.equal(dimensions.dialogOverflows, false);
-            assert.equal(dimensions.pageOverflows, false);
-            console.log(`Player at ${width}px: ${dimensions.width} × ${dimensions.height}px; no horizontal overflow${layoutBaseline ? '; other sections unchanged' : ''}`);
-            const src = await page.locator('#atrTvEmbed iframe').getAttribute('src');
-            assert.equal(new URL(src).searchParams.get('start'), '674');
-            assert.equal(await page.locator('#atrTvExternal').getAttribute('href'), 'https://www.youtube.com/watch?v=eyeOfSerVw0&t=674s');
-            await page.keyboard.press('Escape');
-            await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
-            assert.equal(await page.locator('#atrTvEmbed iframe').count(), 0);
-            assert.match(await page.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
-            assert.equal(await page.locator('.atr-tv-category').textContent(), 'Événements');
-            await checkNavigation(page);
-            await page.locator('.atr-tv-play').click();
-            await page.locator('#atrTvClose').click();
-            await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
-            assert.equal(await page.locator('#atrTvEmbed iframe').count(), 0);
+            // Exercise one explicitly selected card when the real catalog is nonempty.
+            // Empty catalogs remain valid; controlled playback fixtures are checked below.
+            if (expectedVideos.length) {
+                const sample = expectedVideos[0];
+                const card = page.locator('.atr-tv-card').first();
+                assert.match(await card.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+                assert.equal(await card.locator('.atr-tv-category').textContent(), await page.evaluate((category) => window.atrTvTranslations.fr.categories[category], sample.category));
+                await card.locator('.atr-tv-play').click();
+                assert.equal(await page.locator('#atrTvPlayer').evaluate((dialog) => dialog.open), true);
+                const dimensions = await page.locator('#atrTvEmbed iframe').evaluate((iframe) => {
+                    const bounds = iframe.getBoundingClientRect();
+                    const container = iframe.parentElement.getBoundingClientRect();
+                    const dialog = document.querySelector('#atrTvPlayer');
+                    return { width: bounds.width, height: bounds.height, containerHeight: container.height,
+                        dialogOverflows: dialog.scrollWidth > dialog.clientWidth,
+                        pageOverflows: document.documentElement.scrollWidth > innerWidth };
+                });
+                assert.ok(dimensions.height >= 200 && dimensions.containerHeight >= 200, `Player too short at ${width}px`);
+                assert.equal(dimensions.dialogOverflows, false);
+                assert.equal(dimensions.pageOverflows, false);
+                console.log(`Player at ${width}px: ${dimensions.width} × ${dimensions.height}px; no horizontal overflow${layoutBaseline ? '; other sections unchanged' : ''}`);
+                const src = await page.locator('#atrTvEmbed iframe').getAttribute('src');
+                assert.equal(new URL(src).searchParams.get('start'), new URL(sample.embed_url).searchParams.get('start'));
+                assert.equal(await page.locator('#atrTvExternal').getAttribute('href'), sample.youtube_url);
+                await page.keyboard.press('Escape');
+                await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
+                assert.equal(await page.locator('#atrTvEmbed iframe').count(), 0);
+                assert.match(await card.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+                await checkNavigation(page);
+                await card.locator('.atr-tv-play').click();
+                await page.locator('#atrTvClose').click();
+                await page.waitForFunction(() => !document.querySelector('#atrTvEmbed iframe'));
+                assert.equal(await page.locator('#atrTvEmbed iframe').count(), 0);
+            }
             assert.equal(await page.locator('#interest-form-start').getAttribute('action'), 'https://formspree.io/f/xjygyraa');
             assert.equal(await page.locator('#adventure-proposal-form').getAttribute('action'), 'https://formspree.io/f/xljgjwpe');
             assert.equal(await page.locator('.hero').evaluate((hero) => hero.classList.contains('hero--october-rose')), true);
             assert.equal(await page.locator('.hero-campaign-actions .hero-buttons').count(), 1);
             await page.context().close();
         }
-        console.log('French-only UI, French title, playback offset, dialog close, forms and active Hero: passed');
+        console.log('French-only UI, current catalog, available-player checks, forms and active Hero: passed');
 
         const persisted = await makePage(390);
         await goto(persisted);
@@ -120,7 +135,7 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await persisted.reload();
         await ready(persisted);
         assert.equal(await persisted.locator('html').getAttribute('lang'), 'fr');
-        assert.match(await persisted.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+        await checkCatalog(persisted);
         assert.equal(await persisted.evaluate(() => localStorage.getItem('atr-language')), 'fr');
         assert.match(await persisted.locator('[data-adventure-status]').first().textContent(), /^Statut : /);
         await persisted.context().close();
@@ -132,11 +147,9 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await goto(noStorage);
         await ready(noStorage);
         assert.equal(await noStorage.locator('html').getAttribute('lang'), 'fr');
-        assert.match(await noStorage.locator('.atr-tv-play').textContent(), /Lire la vidéo/);
+        await checkCatalog(noStorage);
         await noStorage.context().close();
 
-        const catalog = JSON.parse(await fs.readFile(path.join(__dirname, '../atr-tv-catalog.json'), 'utf8'));
-        const fixture = catalog.videos[0];
         const variants = [
             { ...fixture, slug: 'normal-test', featured: false, sort_order: -10 },
             { ...fixture, slug: 'feature-two-test', featured: true, sort_order: 2 },
@@ -174,7 +187,7 @@ const screenshots = process.env.ATR_TV_SCREENSHOTS || '/private/tmp/atr-tv-previ
         await failure.unroute('**/atr-tv-catalog.json');
         await failure.locator('#atrTvRetry').click();
         await ready(failure);
-        assert.equal(await failure.locator('.atr-tv-card').count(), 1);
+        await checkCatalog(failure);
         await failure.context().close();
 
         const loading = await makePage(390);

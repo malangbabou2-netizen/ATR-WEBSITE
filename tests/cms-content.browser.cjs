@@ -6,6 +6,9 @@ const url = process.env.ATR_CMS_URL || 'http://127.0.0.1:8081/';
 const screenshots = '/private/tmp/atr-cms-preview';
 
 (async () => {
+    const { fixtureCatalogs, TEST_COUNTS } = await import('./content-fixtures.mjs');
+    const { visibleContent } = await import('../cms-content-utils.mjs');
+    const { visibleVideos } = await import('../atr-tv-utils.mjs');
     await fs.mkdir(screenshots, { recursive: true });
     const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
     const errors = [];
@@ -19,7 +22,12 @@ const screenshots = '/private/tmp/atr-cms-preview';
     };
     const ready = (page) => page.waitForFunction(() => document.querySelector('#cmsContentState').hidden);
     const checkPreserved = async (page) => {
-        assert.equal(await page.locator('#evenements .event-item:not(.cms-card)').count(), 8);
+        const expectedHistory = await page.evaluate(async () => {
+            const response = await fetch(location.href);
+            const source = new DOMParser().parseFromString(await response.text(), 'text/html');
+            return [...source.querySelectorAll('#evenements .event-item')].map((item) => item.textContent.replace(/\s+/g, ' ').trim());
+        });
+        assert.deepEqual(await page.locator('#evenements .event-item:not(.cms-card)').evaluateAll((items) => items.map((item) => item.textContent.replace(/\s+/g, ' ').trim())), expectedHistory);
         assert.equal(await page.locator('#jeey-trip-title').count(), 1);
         assert.equal(await page.locator('form[action="https://formspree.io/f/xjygyraa"]').count(), 1);
         assert.equal(await page.locator('form[action="https://formspree.io/f/xljgjwpe"]').count(), 1);
@@ -28,35 +36,46 @@ const screenshots = '/private/tmp/atr-cms-preview';
         assert.equal(await page.locator('.hero-buttons a').count(), 2);
     };
     try {
+        const realResponse = await fetch(new URL('cms-content-catalog.json', url));
+        const tvResponse = await fetch(new URL('atr-tv-catalog.json', url));
+        assert.ok(realResponse.ok && tvResponse.ok, 'Build and serve the site before running browser checks');
+        const real = await realResponse.json();
+        const realTv = await tvResponse.json();
         for (const width of [1440, 390, 320]) {
             const page = await make(width);
             await page.goto(url); await ready(page);
             await page.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'false');
-            const article = page.locator('[data-cms-collection="events"] .cms-card');
-            assert.equal(await article.count(), 1);
-            assert.match(await article.locator('h3').textContent(), /Camp ATR à Nianing/);
-            assert.equal(await article.locator('.event-location').textContent(), 'Nianing');
-            assert.equal(await article.locator('.cms-status').textContent(), 'En cours');
-            assert.match(await article.locator('time').first().textContent(), /17 octobre 2026/);
-            assert.match(await article.locator('time').last().textContent(), /18 octobre 2026/);
-            await article.locator('summary').click();
-            assert.match(await article.locator('.cms-body').textContent(), /Grand[e] Expédition/);
-            assert.equal(await page.locator('.atr-tv-card').count(), 1);
+            const expectedEvents = visibleContent(real.collections.events, 'events', '2026-10-17');
+            assert.deepEqual(await page.locator('[data-cms-collection="events"] .cms-card').evaluateAll((items) => items.map((item) => item.dataset.cmsSlug)), expectedEvents.map((entry) => entry.slug));
+            for (const [index, entry] of expectedEvents.entries()) {
+                const article = page.locator('[data-cms-collection="events"] .cms-card').nth(index);
+                assert.equal(await article.locator('h3').textContent(), entry.translations.fr.title);
+                assert.equal(await article.locator('.event-location').textContent(), entry.location || '');
+                const dates = [...new Set([entry.start_date, entry.end_date].filter(Boolean).map((value) => value.slice(0, 10)))];
+                assert.deepEqual(await article.locator('time').evaluateAll((items) => items.map((item) => item.dateTime)), dates);
+                if (entry.translations.fr.body) {
+                    await article.locator('summary').click();
+                    assert.ok((await article.locator('.cms-body').textContent()).trim().length > 0);
+                }
+            }
+            assert.deepEqual(await page.locator('.atr-tv-card').evaluateAll((items) => items.map((item) => item.dataset.videoSlug)), visibleVideos(realTv.videos).map((entry) => entry.slug));
             await checkPreserved(page);
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
             await page.locator('#evenements').screenshot({ path: path.join(screenshots, `events-${width}.png`) });
-            assert.equal(await page.locator('[data-cms-collection="moto-news"]').isVisible(), false);
-            assert.equal(await page.locator('#actualites-moto').isVisible(), false);
+            const hasNews = visibleContent(real.collections['moto-news'], 'moto-news', '2026-10-17').length > 0;
+            const hasNewsBanner = visibleContent(real.collections['partner-banners'], 'partner-banners', '2026-10-17').some((entry) => entry.placement === 'moto-news');
+            assert.equal(await page.locator('[data-cms-collection="moto-news"]').isVisible(), hasNews);
+            assert.equal(await page.locator('#actualites-moto').isVisible(), hasNews || hasNewsBanner);
             await page.context().close();
         }
-        console.log('Real Nianing, all 8 historical events, dates, details, mobile 320/390, desktop 1440, forms and ATR TV: passed');
+        console.log('Current event/video catalogs, complete historical content, dates, details, mobile 320/390, desktop 1440 and forms: passed');
 
-        const real = JSON.parse(await fs.readFile(path.resolve('_site/cms-content-catalog.json'), 'utf8'));
-        const reference = real.collections.events[0];
+        const fixtures = await fixtureCatalogs(1);
+        const reference = fixtures.cms.collections.events[0];
         const words = { title: '<img src=x onerror=alert(1)> Test local', summary: 'Résumé local', body: '**Détail**\n\n* Une étape\n\n<script>alert(1)</script>', image_alt: 'Image locale', objectives: ['Objectif local'], program: [{ heading: 'Journée locale', details: 'Détails locaux' }], atr_role_note: 'Initiative personnelle, ATR relais', itinerary: 'Itinéraire local', practical_information: 'Information locale', photos: [] };
         const entry = { ...reference, translations: { fr: words, en: words }, image: 'images/nonexistent-test.png', document: 'documents/CAMP ATR 2026 NIANING.pdf', roadbook: 'documents/roadbooks/Roadbook J E E Y.pdf' };
         const variants = {
-            ...real, collections: {
+            ...fixtures.cms, collections: {
                 events: [{ ...entry, slug: 'local-event' }],
                 'member-adventures': [{ ...entry, slug: 'local-adventure', organizer: 'Test local' }],
                 'moto-news': [{ ...entry, slug: 'local-news', publication_date: '2026-10-17', category: 'road-safety', source_name: 'Source locale', original_url: 'https://example.org/article' }],
@@ -94,6 +113,38 @@ const screenshots = '/private/tmp/atr-cms-preview';
         assert.equal(await banner.isVisible(), false);
         await page.context().close();
         console.log('Five CMS renderers: safe Markdown, optional missing images, valid PDF, private local fixtures, banner priorities/rotation, expiry, no overflow: passed');
+
+        for (const count of TEST_COUNTS) {
+            const { cms, tv } = await fixtureCatalogs(count);
+            for (const width of [1440, 320]) {
+                const p = await make(width);
+                await p.route('**/cms-content-catalog.json', (route) => route.fulfill({ json: cms }));
+                await p.route('**/atr-tv-catalog.json', (route) => route.fulfill({ json: tv }));
+                await p.goto(url); await ready(p);
+                await p.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'false');
+                for (const name of ['events', 'member-adventures', 'moto-news', 'ride-and-give']) {
+                    const expected = visibleContent(cms.collections[name], name, '2026-10-17');
+                    const host = p.locator(`[data-cms-collection="${name}"]`);
+                    assert.deepEqual(await host.locator('.cms-card').evaluateAll((items) => items.map((item) => item.dataset.cmsSlug)), expected.map((entry) => entry.slug));
+                    assert.equal(await host.isVisible(), expected.length > 0);
+                }
+                const expectedVideos = visibleVideos(tv.videos);
+                assert.deepEqual(await p.locator('.atr-tv-card').evaluateAll((items) => items.map((item) => item.dataset.videoSlug)), expectedVideos.map((entry) => entry.slug));
+                const news = visibleContent(cms.collections['moto-news'], 'moto-news', '2026-10-17').slice(0, 5);
+                assert.deepEqual(await p.locator('#cmsNewsStrip a').allTextContents(), news.map((entry) => entry.translations.fr.title));
+                const banners = visibleContent(cms.collections['partner-banners'], 'partner-banners', '2026-10-17');
+                const banner = p.locator('[data-cms-placement="events"]');
+                assert.equal(await banner.isVisible(), banners.length > 0);
+                for (const entry of banners) {
+                    assert.match(await banner.textContent(), new RegExp(`Publicité — ${entry.partner_name}`));
+                    if (banners.length > 1) await banner.locator('button').click();
+                }
+                assert.equal(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+                await checkPreserved(p);
+                await p.context().close();
+            }
+            console.log(`Six collections: ${count} active entries plus excluded archives, desktop and mobile: passed`);
+        }
 
         for (const mode of ['empty', 'error']) {
             const p = await make(390);
