@@ -11,6 +11,9 @@ const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'tex
     '.png': 'image/png', '.svg': 'image/svg+xml' };
 
 async function main() {
+    // The network playback probe uses one controlled sample, regardless of public catalog size.
+    const { fixtureCatalogs } = await import('./content-fixtures.mjs');
+    const fixtures = await fixtureCatalogs(1);
     const browser = await chromium.launch({ headless: true,
         executablePath: process.env.ATR_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
     console.log(JSON.stringify({ browser: browser.version(), test: 'Simulated official HTTPS origin; no deployment' }));
@@ -53,7 +56,9 @@ async function main() {
             await page.route('https://africatwinriders.sn/**', async (route) => {
                 const url = new URL(route.request().url());
                 const name = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
-                if (name.includes('..') || !/^\/(?:index\.html|style\.css|script\.js|translations\.js|atr-tv(?:-utils\.mjs|-catalog\.json|\.js)|images\/[^/]+)$/.test(name)) {
+                if (name === '/atr-tv-catalog.json') return route.fulfill({ json: fixtures.tv });
+                if (name === '/cms-content-catalog.json') return route.fulfill({ json: fixtures.cms });
+                if (name.includes('..') || !/^\/(?:index\.html|style\.css|script\.js|translations\.js|atr-tv(?:-utils\.mjs|\.js)|cms-content(?:-utils\.mjs|\.js)|images\/[^/]+)$/.test(name)) {
                     return route.fulfill({ status: 404, body: 'Not part of preview' });
                 }
                 try {
