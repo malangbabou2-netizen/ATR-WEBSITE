@@ -43,11 +43,13 @@ collections:
       - label: Objectifs
         name: objectives
         widget: list
+        required: false
         i18n: true
         field: { label: Objectif, name: objective, widget: text }
       - label: Programme
         name: program
         widget: list
+        required: false
         i18n: true
         fields:
           - { label: Étape ou journée, name: heading, widget: string }
@@ -150,6 +152,7 @@ collections:
       - { label: URL source/originale, name: original_url, widget: string, i18n: duplicate }
       - { label: Image, name: image, widget: image, required: false, i18n: duplicate }
       - { label: Texte alternatif, name: image_alt, widget: string, required: false, i18n: true }
+      - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }
 
   - name: partner_banners
     label: Partenaires et bannières
@@ -179,6 +182,7 @@ collections:
       - { label: Dernier jour de diffusion (Africa/Dakar), name: end_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
       - { label: Bannière active, name: active, widget: boolean, default: false, i18n: duplicate }
       - { label: Priorité d’affichage, name: priority, widget: number, value_type: int, default: 0, i18n: duplicate }
+      - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }
 
   - name: ride_and_give
     label: Ride & Give

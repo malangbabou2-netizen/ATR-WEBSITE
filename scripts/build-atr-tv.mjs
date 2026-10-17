@@ -1,8 +1,9 @@
-import { readdir, readFile, mkdir, writeFile, copyFile, lstat } from 'node:fs/promises';
+import { readdir, readFile, mkdir, writeFile, copyFile, lstat, rm } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { youtubeVideo, safeImage, TV_CATEGORIES, ATR_CHANNEL_URL } from '../atr-tv-utils.mjs';
+import { writeContentCatalog } from './build-cms-content.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const textFields = ['title', 'summary', 'image_alt'];
@@ -47,14 +48,18 @@ export async function buildCatalog(folder) {
     return { version: 1, channel_url: ATR_CHANNEL_URL, videos };
 }
 
-const publicFiles = ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs',
+const publicFiles = ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs',
     'robots.txt', 'sitemap.xml', 'CNAME'];
-const publicFolders = ['images/', 'documents/', 'uploads/', 'admin/', 'content/'];
+const publicFolders = ['images/', 'documents/', 'uploads/', 'admin/'];
 
 export async function stageSite(destination, catalog) {
     const output = resolve(destination);
     const insideProject = relative(project, output);
     if (!insideProject || insideProject.startsWith(`..${sep}`) || insideProject === '..') throw new Error('Build directory must be inside the project');
+    // Only disposable build directories may be replaced; never erase a source directory.
+    if (!/^_site(?:-[a-z0-9-]+)?$/.test(insideProject)) throw new Error('Use _site or _site-<name> as the build directory');
+    await rm(output, { recursive: true, force: true });
+    await mkdir(output, { recursive: true });
     const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: project, encoding: 'utf8' }).split('\0').filter(Boolean);
     const files = [...new Set([...tracked.filter((name) => publicFiles.includes(name) || publicFolders.some((folder) => name.startsWith(folder))), ...publicFiles])];
     for (const name of files) {
@@ -67,6 +72,7 @@ export async function stageSite(destination, catalog) {
         await copyFile(source, target);
     }
     await writeFile(resolve(output, 'atr-tv-catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
+    await writeContentCatalog(resolve(project, 'content'), resolve(output, 'cms-content-catalog.json'));
     await writeFile(resolve(output, '.nojekyll'), '');
 }
 
