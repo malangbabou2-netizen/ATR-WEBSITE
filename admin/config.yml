@@ -165,21 +165,23 @@ collections:
     slug: "{{slug}}"
     summary: "{{partner_name}} — {{placement}}"
     fields:
-      - { label: Nom du partenaire, name: partner_name, widget: string, i18n: duplicate }
+      - { label: Nom du partenaire ou de la campagne, name: partner_name, widget: string, i18n: duplicate }
       - { label: Image publicitaire, name: image, widget: image, i18n: duplicate }
+      - { label: Image mobile (facultative), name: image_mobile, widget: image, required: false, i18n: duplicate, hint: "Hero : format 16:9, recommandé 1920 × 1080. Image entière affichée sans recadrage ni déformation." }
       - { label: Texte alternatif, name: image_alt, widget: string, i18n: true }
-      - { label: Lien de destination HTTPS, name: destination_url, widget: string, i18n: duplicate }
+      - { label: Lien de destination HTTPS, name: destination_url, widget: string, required: false, i18n: duplicate }
       - label: Emplacement
         name: placement
         widget: select
         i18n: duplicate
         options:
+          - { label: Accueil — Hero, value: hero }
           - { label: Accueil — sous le Hero, value: home-after-hero }
           - { label: Événements, value: events }
           - { label: ATR TV, value: atr-tv }
           - { label: Actualités, value: moto-news }
-      - { label: Premier jour de diffusion (Africa/Dakar), name: start_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
-      - { label: Dernier jour de diffusion (Africa/Dakar), name: end_date, widget: datetime, date_format: "YYYY-MM-DD", picker_utc: true, i18n: duplicate }
+      - { label: Début de diffusion (Africa/Dakar), name: start_date, widget: datetime, date_format: "YYYY-MM-DD", time_format: "HH:mm", format: "YYYY-MM-DDTHH:mm:ss[Z]", picker_utc: true, hint: "Heure de Dakar (UTC). Hero : fin exclusive à l’heure choisie. Autres emplacements : journées entières.", i18n: duplicate }
+      - { label: Fin de diffusion (Africa/Dakar), name: end_date, widget: datetime, date_format: "YYYY-MM-DD", time_format: "HH:mm", format: "YYYY-MM-DDTHH:mm:ss[Z]", picker_utc: true, hint: "Heure de Dakar (UTC). Hero : fin exclusive à l’heure choisie. Autres emplacements : journées entières.", i18n: duplicate }
       - { label: Bannière active, name: active, widget: boolean, default: false, i18n: duplicate }
       - { label: Priorité d’affichage, name: priority, widget: number, value_type: int, default: 0, i18n: duplicate }
       - { label: Archivée, name: archived, widget: boolean, default: false, i18n: duplicate }

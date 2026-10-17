@@ -36,6 +36,9 @@ const getDakarMidnightTimestamp = (year, month, day) => {
 };
 
 const octoberRoseStart = getDakarMidnightTimestamp(2026, 10, 10);
+// Campagne temporaire : fin exclusive le 1er novembre 2026 à minuit Dakar.
+// Ensuite, le Hero original (images/hero-ATR.jpg) reste le secours permanent ;
+// seules les bannières CMS éligibles peuvent le remplacer.
 const octoberRoseEnd = getDakarMidnightTimestamp(2026, 11, 1);
 const campaignHero = document.querySelector('.hero');
 const campaignArtwork = document.querySelector('.hero-campaign');
