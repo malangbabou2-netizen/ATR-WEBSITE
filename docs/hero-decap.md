@@ -25,3 +25,11 @@ Les tests navigateur utilisent des données interceptées localement, jamais des
 Test navigateur local : `node tests/hero-carousel.browser.cjs` (Playwright et Chrome requis). Le test intercepte toutes les ressources du site et ne publie aucune donnée.
 
 Configuration du sélecteur vérifiée dans la documentation Decap : https://decapcms.org/docs/widgets/datetime/ (`picker_utc: true`).
+
+## Fin du Hero temporaire et secours permanent
+
+La campagne Octobre Rose est temporaire et se termine **le 1er novembre 2026 à 00:00:00, fuseau Africa/Dakar (UTC)**, sans rechargement ni nouvelle publication. Elle ne se réactive pas les années suivantes.
+
+À partir de cet instant, le Hero original **images/hero-ATR.jpg**, avec son texte et ses boutons, constitue le secours permanent lorsqu’aucune bannière programmée n’est éligible. Une bannière CMS encore active après le 1er novembre continue de s’afficher selon son propre calendrier ; à son expiration, le Hero original revient. Une panne du catalogue ou des images utilise ce même secours.
+
+Tests dédiés : passage de 23:59:59 au 1er novembre sans rechargement, arrivée directe et actualisation après minuit, fuseaux visiteurs Dakar/Tokyo/New York, catalogue indisponible, images introuvables, bannière expirée, bannière traversant minuit et absence de réactivation en octobre 2027.
