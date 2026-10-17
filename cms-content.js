@@ -1,3 +1,4 @@
+import { createHeroCarousel } from './hero-carousel.mjs';
 import { CMS_COLLECTIONS, visibleContent, contentStatus, dateKey, dakarDay, safeContentUrl } from './cms-content-utils.mjs';
 
 const labels = {
@@ -109,6 +110,7 @@ function categoryLabel(category) {
     const i = ['motogp', 'rally-raid', 'trade-shows', 'new-models', 'manufacturers', 'road-safety', 'african-motorcycle-events'].indexOf(category);
     return newsCategories[language()][i] || category;
 }
+const heroCarousel = createHeroCarousel(document.querySelector('.hero'));
 let catalog;
 const bannerPositions = new Map();
 function render() {
@@ -170,7 +172,7 @@ async function load() {
         if (!response.ok) throw new Error(`CMS catalog HTTP ${response.status}`);
         const data = await response.json();
         if (data?.version !== 1 || !CMS_COLLECTIONS.every((name) => Array.isArray(data.collections?.[name]))) throw new Error('Invalid CMS catalog');
-        catalog = data; state.hidden = true; render();
+        catalog = data; heroCarousel?.setEntries(data.collections['partner-banners']); state.hidden = true; render();
     } catch {
         state.textContent = labels[language()].error;
         state.dataset.error = 'true';

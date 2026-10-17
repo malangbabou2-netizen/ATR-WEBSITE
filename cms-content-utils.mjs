@@ -56,3 +56,22 @@ export function safeContentUrl(value, type = 'link') {
         !(type === 'pdf' ? /\.pdf$/i : /\.(png|jpe?g|webp|gif|avif)$/i).test(decoded)) throw new Error('Invalid local asset');
     return decoded.replace(/^\//, '');
 }
+
+// Africa/Dakar is UTC. Date-only legacy values cover the entire last day.
+export function bannerBoundary(value, end = false) {
+    dateKey(value);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return Date.parse(`${value}T00:00:00Z`) + (end ? 86400000 : 0);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) throw new Error('Explicit timezone required');
+    const instant = Date.parse(value);
+    if (!Number.isFinite(instant)) throw new Error('Invalid banner timestamp');
+    return instant;
+}
+
+export function heroBanners(entries, now = Date.now()) {
+    return entries.filter((entry) => {
+        try {
+            return entry.placement === 'hero' && entry.active === true && entry.archived !== true &&
+                bannerBoundary(entry.start_date) <= now && now < bannerBoundary(entry.end_date, true);
+        } catch { return false; }
+    }).sort((a, b) => b.priority - a.priority || a.slug.localeCompare(b.slug));
+}

@@ -48,7 +48,7 @@ export async function buildCatalog(folder) {
     return { version: 1, channel_url: ATR_CHANNEL_URL, videos };
 }
 
-const publicFiles = ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs',
+const publicFiles = ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'hero-carousel.mjs',
     'robots.txt', 'sitemap.xml', 'CNAME'];
 const publicFolders = ['images/', 'documents/', 'uploads/', 'admin/'];
 

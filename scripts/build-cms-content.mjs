@@ -1,17 +1,17 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { CMS_COLLECTIONS, dateKey, safeContentUrl } from '../cms-content-utils.mjs';
+import { CMS_COLLECTIONS, bannerBoundary, dateKey, safeContentUrl } from '../cms-content-utils.mjs';
 
 const localized = ['title', 'summary', 'body', 'image_alt', 'objectives', 'program', 'atr_role_note', 'itinerary', 'practical_information', 'photos'];
 const required = {
     events: ['title', 'summary', 'start_date', 'end_date', 'location'],
     'member-adventures': ['title', 'summary', 'organizer', 'atr_role_note', 'start_date', 'end_date', 'itinerary'],
     'moto-news': ['title', 'summary', 'publication_date', 'category', 'source_name', 'original_url'],
-    'partner-banners': ['partner_name', 'image', 'image_alt', 'destination_url', 'placement', 'start_date', 'end_date'],
+    'partner-banners': ['partner_name', 'image', 'image_alt', 'placement', 'start_date', 'end_date'],
     'ride-and-give': ['title', 'summary', 'date', 'location']
 };
 const categories = ['motogp', 'rally-raid', 'trade-shows', 'new-models', 'manufacturers', 'road-safety', 'african-motorcycle-events'];
-const placements = ['home-after-hero', 'events', 'atr-tv', 'moto-news'];
+const placements = ['hero', 'home-after-hero', 'events', 'atr-tv', 'moto-news'];
 const blockedTest = /TEST INTERNE ATR\s*[—–-]\s*NE PAS PUBLIER/i;
 
 export async function buildContentCatalog(root) {
@@ -66,10 +66,14 @@ export async function buildContentCatalog(root) {
             }
             for (const key of ['start_date', 'end_date', 'date', 'publication_date']) if (entry[key]) dateKey(entry[key]);
             if (entry.end_date && dateKey(entry.end_date) < dateKey(entry.start_date)) throw new Error(`End before start: ${slug}`);
-            for (const key of ['image', 'document', 'roadbook']) if (entry[key]) entry[key] = safeContentUrl(entry[key], key === 'image' ? 'image' : 'pdf');
+            for (const key of ['image', 'image_mobile', 'document', 'roadbook']) if (entry[key]) entry[key] = safeContentUrl(entry[key], key.startsWith('image') ? 'image' : 'pdf');
             for (const key of ['destination_url', 'original_url']) if (entry[key]) entry[key] = safeContentUrl(entry[key]);
             if (collection === 'moto-news' && !categories.includes(entry.category)) throw new Error(`Invalid news category: ${slug}`);
             if (collection === 'partner-banners' && (!placements.includes(entry.placement) || typeof entry.active !== 'boolean' || !Number.isSafeInteger(entry.priority))) throw new Error(`Invalid banner settings: ${slug}`);
+            if (collection === 'partner-banners') {
+                if (entry.placement !== 'hero' && !entry.destination_url) throw new Error(`Missing destination: ${slug}`);
+                if (entry.placement === 'hero' && bannerBoundary(entry.end_date, true) <= bannerBoundary(entry.start_date)) throw new Error(`Invalid Hero interval: ${slug}`);
+            }
             const identity = JSON.stringify([String(fr.title || fr.partner_name).normalize('NFC').trim().toLocaleLowerCase('fr'),
                 dateKey(fr.start_date || fr.date || fr.publication_date), dateKey(fr.end_date), fr.location || '', fr.placement || '']);
             if (identities.has(identity)) throw new Error(`Duplicate CMS content: ${collection}/${slug}`);
