@@ -1623,3 +1623,33 @@ a.footer-social-icon:hover {
         padding: 0 12px;
     }
 }
+/* Approved CMS publications reuse the existing event layout. Empty slots occupy no space. */
+.cms-slot[hidden], .cms-banner[hidden], .cms-news-strip[hidden] { display: none !important; }
+.cms-heading { margin: 1.5rem 0; }
+.cms-card { min-width: 0; overflow-wrap: anywhere; }
+.cms-card .cms-image { width: 100%; max-width: 420px; height: auto; margin-bottom: 1rem; object-fit: contain; }
+.cms-date { display: flex; flex-direction: column; gap: .5rem; font-size: .9rem; }
+.cms-status { font-weight: 700; }
+.cms-body { white-space: normal; }
+.cms-body p, .cms-body ul { margin: 1rem 0; }
+.cms-link { display: inline-block; color: inherit; text-decoration: underline; overflow-wrap: anywhere; }
+.cms-banner { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+.cms-banner img { display: block; width: 100%; max-height: 220px; object-fit: contain; }
+.cms-banner .btn { margin-top: .75rem; }
+.cms-news:has([data-cms-collection][hidden]):not(:has(.cms-banner:not([hidden]))) { display: none; }
+.cms-news-strip { display: flex; gap: 2rem; padding: .6rem 1rem; overflow-x: auto; max-width: 100%; }
+.cms-news-strip a { flex: 0 0 auto; max-width: min(85vw, 38rem); font-size: .85rem; }
+.cms-state:empty, .cms-state[hidden] { display: none; }
+.cms-slot[data-cms-collection="ride-and-give"] { color: inherit; }
+.ride-give .cms-card .event-info p, .ride-give .cms-card .event-location { color: #ddd; }
+.ride-give .cms-card .section-label { color: #bbb; }
+
+@media (max-width: 600px) {
+    .cms-slot .cms-card { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+    .cms-slot .cms-card > .event-info,
+    .cms-slot .cms-card > .event-location,
+    .cms-slot .cms-card > .event-date,
+    .cms-slot .cms-card > .event-details { grid-column: 1; grid-row: auto; }
+    .cms-slot .cms-card > .event-location { text-align: left; }
+    .cms-slot .cms-card > .cms-date { flex-direction: row; flex-wrap: wrap; gap: .5rem 1rem; }
+}

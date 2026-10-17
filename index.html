@@ -84,6 +84,8 @@
 
     <!-- ================= HERO ================= -->
 
+    <nav id="cmsNewsStrip" class="cms-news-strip" aria-label="Actualités" hidden></nav>
+
     <main id="mainContent" tabindex="-1">
 
         <section class="hero" id="accueil">
@@ -132,6 +134,7 @@
             <div class="hero-campaign-actions" aria-label="Navigation du Hero / Hero navigation"></div>
 
         </section>
+        <aside class="container cms-banner" data-cms-placement="home-after-hero" hidden></aside>
 
 
         <!-- ================= À PROPOS ================= -->
@@ -389,6 +392,10 @@
 
                 </div>
 
+                <p id="cmsContentState" class="cms-state" role="status"></p>
+                <div class="cms-slot" data-cms-collection="events" hidden></div>
+                <aside class="cms-banner" data-cms-placement="events" hidden></aside>
+
                 <p class="section-label">
                     ACTIVITÉS RÉALISÉES
                 </p>
@@ -642,6 +649,7 @@
 
         <section class="atr-tv section" id="atr-tv" aria-labelledby="atrTvTitle">
             <div class="container">
+                <aside class="cms-banner" data-cms-placement="atr-tv" hidden></aside>
                 <div class="section-heading atr-tv-heading">
                     <div>
                         <p class="section-label">VIDÉOS ATR</p>
@@ -688,6 +696,8 @@
                     </button>
 
                 </div>
+
+                <div class="cms-slot" data-cms-collection="member-adventures" hidden></div>
 
                 <div class="member-adventure-list" id="memberAdventureList">
 
@@ -890,6 +900,8 @@
 
             <div class="container">
 
+                <div class="cms-slot" data-cms-collection="ride-and-give" hidden></div>
+
                 <div class="ride-give-content">
 
                     <p class="section-label">
@@ -928,6 +940,13 @@
 
         </section>
 
+
+        <section class="section cms-news" id="actualites-moto" aria-label="Actualités moto">
+            <div class="container">
+                <aside class="cms-banner" data-cms-placement="moto-news" hidden></aside>
+                <div class="cms-slot" data-cms-collection="moto-news" hidden></div>
+            </div>
+        </section>
 
         <!-- ================= CONTACT ================= -->
 
@@ -1020,6 +1039,7 @@
     <script src="translations.js"></script>
     <script src="script.js?v=20261016-fr"></script>
     <script type="module" src="atr-tv.js?v=20261016-fr"></script>
+    <script type="module" src="cms-content.js"></script>
 
 </body>
 </html>
