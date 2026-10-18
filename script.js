@@ -246,7 +246,7 @@ if (memberAdventureList && memberAdventureArchive && adventureEmptyState && adve
 // Renseigner ici uniquement les URL officielles ATR quand elles auront été validées.
 const atrSocialProfileUrls = {
     youtube: '',
-    instagram: '',
+    instagram: 'https://www.instagram.com/africatwin221/',
     facebook: ''
 };
 

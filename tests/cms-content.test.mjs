@@ -181,3 +181,16 @@ test('public integration preserves original forms, legacy sections and Hero time
     const build = await readFile('scripts/build-atr-tv.mjs', 'utf8');
     assert.ok(!/const publicFolders = .*'content\/'/.test(build));
 });
+
+test('Safety Day is a single completed historical activity; official Instagram is configured securely', async () => {
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    const script = await readFile(new URL('../script.js', import.meta.url), 'utf8');
+    const [completed, upcoming] = html.split('ACTIVITÉS RÉALISÉES')[1].split('ACTIVITÉS À VENIR');
+    assert.equal((html.match(/<h3>ATR Safety Day<\/h3>/g) || []).length, 1);
+    assert.match(completed, /<strong>17<\/strong>\s*<span>OCTOBRE 2026<\/span>[\s\S]*<h3>ATR Safety Day<\/h3>\s*<p>\s*<strong>RÉALISÉ<\/strong><br>\s*Sécurité routière, dans le cadre du Camp ATR 2\.[\s\S]*Nianing, Sénégal/);
+    assert.doesNotMatch(upcoming, /<h3>ATR Safety Day<\/h3>/);
+    assert.match(script, /instagram: 'https:\/\/www\.instagram\.com\/africatwin221\/'/);
+    assert.match(script, /youtube: ''/);
+    assert.match(script, /facebook: ''/);
+    assert.match(html, /href="https:\/\/www\.instagram\.com\/africatwin221\/" target="_blank" rel="noopener noreferrer"/);
+});
