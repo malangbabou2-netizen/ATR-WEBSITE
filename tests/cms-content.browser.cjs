@@ -41,7 +41,7 @@ const screenshots = '/private/tmp/atr-cms-preview';
         assert.ok(realResponse.ok && tvResponse.ok, 'Build and serve the site before running browser checks');
         const real = await realResponse.json();
         const realTv = await tvResponse.json();
-        for (const width of [1440, 390, 320]) {
+        for (const width of [1440, 768, 390, 320]) {
             const page = await make(width);
             await page.goto(url); await ready(page);
             await page.waitForFunction(() => document.querySelector('#atrTvGrid').getAttribute('aria-busy') === 'false');
@@ -60,6 +60,26 @@ const screenshots = '/private/tmp/atr-cms-preview';
             }
             assert.deepEqual(await page.locator('.atr-tv-card').evaluateAll((items) => items.map((item) => item.dataset.videoSlug)), visibleVideos(realTv.videos).map((entry) => entry.slug));
             await checkPreserved(page);
+            const historicalLists = page.locator('#evenements > .container > .event-list');
+            const safety = historicalLists.first().locator('.event-item').filter({ has: page.getByRole('heading', { name: 'ATR Safety Day', exact: true }) });
+            assert.equal(await safety.count(), 1);
+            assert.match(await safety.textContent(), /17\s*OCTOBRE 2026[\s\S]*RÉALISÉ[\s\S]*Sécurité routière[\s\S]*Camp ATR 2[\s\S]*Nianing, Sénégal/);
+            assert.equal(await historicalLists.last().getByRole('heading', { name: 'ATR Safety Day', exact: true }).count(), 0);
+            const instagram = page.locator('a[href="https://www.instagram.com/africatwin221/"]');
+            assert.equal(await instagram.count(), 3);
+            for (const link of await instagram.all()) {
+                assert.equal(await link.isVisible(), true);
+                assert.equal(await link.getAttribute('target'), '_blank');
+                assert.equal(await link.getAttribute('rel'), 'noopener noreferrer');
+                await link.focus(); assert.equal(await link.evaluate(el => el === document.activeElement), true);
+            }
+            assert.equal(await page.locator('a[data-social-platform="youtube"], a[data-social-platform="facebook"]').count(), 0);
+            {
+                // Capture the actual header and contact/footer without opening Instagram.
+                await page.locator('header').screenshot({ path: path.join(screenshots, `instagram-header-${width}.png`) });
+                await page.locator('#contact').screenshot({ path: path.join(screenshots, `instagram-contact-${width}.png`) });
+                await page.locator('footer').screenshot({ path: path.join(screenshots, `instagram-footer-${width}.png`) });
+            }
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
             await page.locator('#evenements').screenshot({ path: path.join(screenshots, `events-${width}.png`) });
             const hasNews = visibleContent(real.collections['moto-news'], 'moto-news', '2026-10-17').length > 0;
