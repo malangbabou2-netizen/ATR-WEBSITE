@@ -194,3 +194,18 @@ test('Safety Day is a single completed historical activity; official Instagram i
     assert.match(script, /facebook: ''/);
     assert.match(html, /href="https:\/\/www\.instagram\.com\/africatwin221\/" target="_blank" rel="noopener noreferrer"/);
 });
+
+
+test('Nianing camp appears once in completed history with its original proposed programme', async () => {
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    const [completed, upcoming] = html.split('ACTIVITÉS RÉALISÉES')[1].split('ACTIVITÉS À VENIR');
+    const title = '<h3>2ᵉ CAMP ATR 2026 — NIANING</h3>';
+    assert.equal(html.split(title).length - 1, 1);
+    assert.ok(completed.includes(title));
+    assert.ok(!upcoming.includes(title));
+    const camp = completed.match(/<article class="event-item event-item-expandable">[\s\S]*?<\/article>/)[0];
+    assert.match(camp, /<strong>16–18<\/strong>\s*<span>OCTOBRE 2026<\/span>/);
+    assert.match(camp, /RÉALISÉ · PROGRAMME PROPOSÉ ARCHIVÉ/);
+    assert.doesNotMatch(camp, /À VENIR/);
+    for (const text of ['Nianing', 'Vendredi 16 octobre', 'Samedi 17 octobre', 'Dimanche 18 octobre', 'ne constituent pas un compte rendu', 'documents/CAMP%20ATR%202026%20NIANING.pdf']) assert.ok(camp.includes(text));
+});

@@ -65,6 +65,15 @@ const screenshots = '/private/tmp/atr-cms-preview';
             assert.equal(await safety.count(), 1);
             assert.match(await safety.textContent(), /17\s*OCTOBRE 2026[\s\S]*RÉALISÉ[\s\S]*Sécurité routière[\s\S]*Camp ATR 2[\s\S]*Nianing, Sénégal/);
             assert.equal(await historicalLists.last().getByRole('heading', { name: 'ATR Safety Day', exact: true }).count(), 0);
+            const campTitle = '2ᵉ CAMP ATR 2026 — NIANING';
+            assert.equal(await page.getByRole('heading', { name: campTitle, exact: true }).count(), 1);
+            const camp = historicalLists.first().locator('article').filter({ has: page.getByRole('heading', { name: campTitle, exact: true }) });
+            assert.equal(await camp.count(), 1);
+            assert.match(await camp.textContent(), /16–18\s*OCTOBRE 2026[\s\S]*RÉALISÉ · PROGRAMME PROPOSÉ ARCHIVÉ/);
+            assert.equal(await historicalLists.last().getByRole('heading', { name: campTitle, exact: true }).count(), 0);
+            await camp.locator('summary').click();
+            assert.equal(await camp.getByRole('link', { name: 'Télécharger le programme PDF' }).isVisible(), true);
+            await camp.locator('summary').click();
             const instagram = page.locator('a[href="https://www.instagram.com/africatwin221/"]');
             assert.equal(await instagram.count(), 3);
             for (const link of await instagram.all()) {
