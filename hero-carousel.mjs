@@ -14,21 +14,30 @@ export function createHeroCarousel(hero) {
     controls.className = 'hero-carousel-controls';
     const button = (text, action) => {
         const element = document.createElement('button');
-        element.type = 'button'; element.textContent = text;
+        element.type = 'button'; element.setAttribute('aria-label', text); element.title = text;
         element.addEventListener('click', action); controls.append(element); return element;
     };
+    const icon = (element, path) => { element.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${path}"/></svg>`; };
     const previous = button('Précédente', () => move(-1, true));
+    icon(previous, 'M15 5l-7 7 7 7');
     const pause = button('Mettre en pause', () => { paused = !paused; updatePause(); schedule(); });
     const next = button('Suivante', () => move(1, true));
+    icon(next, 'M9 5l7 7-7 7');
+    const actions = document.createElement('div');
+    actions.className = 'hero-carousel-actions';
+    const links = hero.querySelector('.hero-buttons')?.cloneNode(true);
+    if (links) { links.className = 'hero-carousel-links'; actions.append(links); }
     const status = document.createElement('span');
     status.setAttribute('aria-live', 'off'); status.setAttribute('aria-atomic', 'true');
-    controls.append(status); host.append(frame, controls); hero.append(host);
+    controls.append(status); host.append(frame, controls, actions); hero.append(host);
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let entries = [], active = [], current = '', displayed = '', timer, boundaryTimer, generation = 0;
     let paused = reduced.matches, hovering = false, focused = false, initialized = false;
     const failed = new Set();
     function updatePause() {
-        pause.textContent = paused ? 'Reprendre le défilement' : 'Mettre en pause';
+        const label = paused ? 'Reprendre le défilement' : 'Mettre en pause';
+        pause.setAttribute('aria-label', label); pause.title = label;
+        icon(pause, paused ? 'M8 5l11 7-11 7z' : 'M8 5v14M16 5v14');
         pause.setAttribute('aria-pressed', String(paused));
         status.setAttribute('aria-live', paused || focused || hovering ? 'polite' : 'off');
     }
@@ -47,7 +56,7 @@ export function createHeroCarousel(hero) {
         }
         const image = document.createElement('img');
         image.alt = entry.translations?.fr?.image_alt || entry.image_alt || entry.partner_name;
-        image.width = 1920; image.height = 1080; image.decoding = 'async'; image.fetchPriority = 'high';
+        image.width = 1983; image.height = 793; image.decoding = 'async'; image.fetchPriority = 'high';
         image.onload = () => {
             if (token !== generation) return;
             let content = picture;
@@ -56,8 +65,19 @@ export function createHeroCarousel(hero) {
                 anchor.append(picture); content = anchor;
             }
             // Keep the previous working image (or the original Hero) until this image loads.
-            displayed = entry.slug;
-            frame.replaceChildren(content); host.hidden = false; hero.classList.add('hero--carousel');
+            const slide = document.createElement('div');
+            slide.className = 'hero-carousel-slide';
+            // Original pixels remain intact; the wider frame adds a quiet backdrop.
+            slide.append(content);
+            const oldSlide = frame.lastElementChild;
+            for (const child of [...frame.children]) if (child !== oldSlide) child.remove();
+            if (oldSlide && !reduced.matches && displayed !== entry.slug) {
+                oldSlide.inert = true; oldSlide.setAttribute('aria-hidden', 'true');
+                slide.classList.add('hero-carousel-slide--enter');
+                frame.append(slide);
+                setTimeout(() => { oldSlide.remove(); slide.classList.remove('hero-carousel-slide--enter'); }, 650);
+            } else frame.replaceChildren(slide);
+            displayed = entry.slug; host.hidden = false; hero.classList.add('hero--carousel');
             status.setAttribute('aria-live', manual ? 'polite' : 'off');
             status.textContent = `Bannière ${active.findIndex((item) => item.slug === entry.slug) + 1} sur ${active.length} — ${entry.partner_name}`;
             schedule();

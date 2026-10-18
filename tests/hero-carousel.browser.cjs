@@ -45,14 +45,42 @@ const path = require('node:path');
         for (const width of [390, 768, 1440]) {
             const mobile = await make(width, [banners[0]], 'reduce');
             await mobile.locator('.hero-carousel').waitFor({ state: 'visible' });
-            const size = await mobile.locator('.hero-carousel-frame').boundingBox(); assert.ok(Math.abs(size.width / size.height - 16/9) < .01);
+            const size = await mobile.locator('.hero-carousel-frame').boundingBox(); assert.ok(Math.abs(size.width / size.height - 1983/793) < .01);
             assert.equal(await mobile.locator('.hero-carousel-controls').isVisible(), false);
             assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
             assert.match(await mobile.locator('.hero-carousel img').evaluate(img => img.currentSrc), width <= 700 ? /hero-ATR.png/ : /hero-ATR.jpg/);
             if (width === 390) await mobile.screenshot({ path: '/private/tmp/atr-hero-mobile.png' });
             await mobile.context().close();
         }
+        // Published originals, unchanged CMS dates and priorities, three device classes.
+        for (const width of [390, 768, 1440]) {
+            const real = await make(width, catalog.collections['partner-banners'], 'no-preference', '2026-10-18T12:00:00Z');
+            const carousel = real.locator('.hero-carousel');
+            await carousel.waitFor({ state: 'visible' });
+            assert.equal(await carousel.locator('.hero-carousel-controls button').count(), 3);
+            assert.equal(await carousel.locator('.hero-carousel-controls button').allTextContents().then(texts => texts.join('')), '');
+            const links = carousel.locator('.hero-carousel-actions a');
+            assert.deepEqual(await links.evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['#about', '#evenements']);
+            for (let index = 0; index < 2; index++) {
+                await carousel.locator('.hero-carousel-slide').last().locator('img').evaluate(img => img.decode());
+                assert.equal(await carousel.locator('.hero-carousel-slide').last().locator('img').evaluate(img => getComputedStyle(img).objectFit), 'contain');
+                assert.ok(await real.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+                await real.screenshot({ path: `/private/tmp/atr-hero-final-${width}-${index}.png` });
+                for (const link of await links.all()) assert.equal(await link.isVisible(), true);
+                await carousel.getByRole('button', { name: 'Suivante' }).click();
+                await real.waitForFunction(() => document.querySelectorAll('.hero-carousel-slide').length === 2);
+                assert.equal(await carousel.locator('.hero-carousel-slide').last().evaluate(el => getComputedStyle(el).animationName), 'hero-crossfade');
+                await real.clock.runFor(700);
+                assert.equal(await carousel.locator('.hero-carousel-slide').count(), 1);
+            }
+            await real.context().close();
+        }
         const reduced = await make(390, banners, 'reduce'); await reduced.locator('.hero-carousel').waitFor({ state: 'visible' });
+        const beforeReduced = await reduced.locator('.hero-carousel span').textContent();
+        await reduced.locator('.hero-carousel').getByRole('button', { name: 'Suivante' }).click();
+        await reduced.waitForFunction(value => document.querySelector('.hero-carousel span').textContent !== value, beforeReduced);
+        assert.equal(await reduced.locator('.hero-carousel-slide').count(), 1);
+        assert.equal(await reduced.locator('.hero-carousel-slide').evaluate(el => getComputedStyle(el).animationName), 'none');
         const still = await reduced.locator('.hero-carousel span').textContent(); await reduced.clock.runFor(12000); assert.equal(await reduced.locator('.hero-carousel span').textContent(), still);
         const broken = await make(390, [{ ...entry, slug: 'broken', image: 'images/missing.jpg' }]);
         assert.equal(await broken.locator('.hero-carousel').isVisible(), false);
