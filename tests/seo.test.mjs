@@ -79,7 +79,8 @@ test('confirmed legal information has public metadata and a footer link; privacy
     assert.equal(meta['og:title'], title);
     assert.equal(meta['og:description'], meta.description);
     assert.equal(noindex, false);
-    for (const text of ['Malang Babou', 'Rufisque, Cité Filaos', 'samabusinesscom@gmail.com', 'malangbabou2@gmail.com']) assert.ok(html.includes(text));
+    for (const text of ['Dénomination juridique : AFRICA TWIN RIDERS.', 'Groupement d’Intérêt Économique (GIE)', 'SN.DKR.2026.C.18070', '013058856', 'Rufisque, Cité Filao, Villa n° 42, Sénégal', 'Président et représentant légal du GIE : Malang Babou', 'Gestionnaire technique du site : Malang Babou', 'samabusinesscom@gmail.com', 'malangbabou2@gmail.com', 'restent soumises à validation avant publication']) assert.ok(html.includes(text));
+    assert.doesNotMatch(html, /naissance|signature|data:|\.pdf(?:["?#]|$)/i);
     assert.match(home, /href="mentions-legales.html"/);
     assert.doesNotMatch(home, /href="confidentialite.html"/);
     assert.match(await readFile('sitemap.xml', 'utf8'), /mentions-legales.html/);

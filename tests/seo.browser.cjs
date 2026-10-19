@@ -17,6 +17,7 @@ const assert = require('node:assert/strict');
             assert.equal(await page.title(), 'Mentions légales | Africa Twin Riders Sénégal');
             assert.equal(await page.locator('html').getAttribute('lang'), 'fr');
             assert.equal(await page.locator('h1').count(), 1);
+            for (const text of ['AFRICA TWIN RIDERS', 'SN.DKR.2026.C.18070', '013058856', 'Rufisque, Cité Filao, Villa n° 42, Sénégal', 'Président et représentant légal du GIE : Malang Babou', 'Gestionnaire technique du site : Malang Babou', 'restent soumises à validation avant publication']) assert.ok((await page.locator('main').textContent()).includes(text));
             const canonical = 'https://africatwinriders.sn/mentions-legales.html';
             assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), canonical);
             assert.equal(await page.locator('meta[property="og:url"]').getAttribute('content'), canonical);
