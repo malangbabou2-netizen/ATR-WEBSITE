@@ -2,6 +2,8 @@
 import hashlib
 import os
 import urllib.request
+import time
+import shutil
 from pathlib import Path
 import argostranslate.package
 import argostranslate.translate
@@ -14,7 +16,16 @@ def setup():
     languages = argostranslate.translate.get_installed_languages()
     if not any(language.code == 'en' and any(t.to_lang.code == 'fr' for t in language.translations_from) for language in languages):
         target = Path(os.environ.get('RUNNER_TEMP', '/tmp')) / 'atr-en-fr.argosmodel'
-        urllib.request.urlretrieve(MODEL_URL, target)
+        # Use the same identification as the official Argos downloader.
+        request = urllib.request.Request(MODEL_URL, headers={'User-Agent': 'ArgosTranslate'})
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(request, timeout=120) as response, target.open('wb') as output:
+                    shutil.copyfileobj(response, output)
+                break
+            except Exception:
+                if attempt == 2: raise
+                time.sleep(2 ** attempt)
         if hashlib.sha256(target.read_bytes()).hexdigest() != MODEL_SHA256:
             raise ValueError('Empreinte du modèle Argos inattendue')
         argostranslate.package.install_from_path(target)
