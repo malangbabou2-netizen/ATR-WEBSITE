@@ -2,6 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { tmpdir } = require('node:os');
 (async () => {
     const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
     const axePath = process.env.AXE_SCRIPT || require.resolve('axe-core/axe.min.js');
@@ -57,7 +58,7 @@ const path = require('node:path');
             await page.clock.runFor(12000); assert.equal(await root.locator('article:not([hidden]) h3').textContent(), first);
             assert.equal(await root.getByRole('button', { name: 'Reprendre le défilement' }).count(), 1);
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-            await root.screenshot({ path: `/private/tmp/atr-news-${width}.png` });
+            await root.screenshot({ path: path.join(tmpdir(), `atr-news-${width}.png`) });
             await page.close();
         }
         for (const option of [{ all: true }, { fail: true }, { empty: true }, { bothFail: true }, { one: true }]) {
