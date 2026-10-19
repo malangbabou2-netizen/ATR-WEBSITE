@@ -1,0 +1,20 @@
+.moto-news { background: #111; color: #f5f5f5; padding-block: 48px; }
+.moto-news [hidden] { display: none !important; }
+.moto-news h1, .moto-news h2, .moto-news h3 { color: #fff; line-height: 1.25; overflow-wrap: anywhere; }
+.moto-news h1, .moto-news > .container > h2 { font-size: clamp(24px, 4vw, 40px); margin-bottom: 20px; }
+.moto-news [data-news-state] { color: #ccc; margin-block: 18px; }
+.moto-news-card { padding: clamp(20px, 4vw, 36px); border: 1px solid #666; background: #1c1c1c; min-width: 0; overflow-wrap: anywhere; }
+.moto-news-card h2, .moto-news-card h3 { font-size: clamp(22px, 3vw, 30px); margin-block: 12px; }
+.moto-news-card time, .moto-news-credit { color: #ccc; font-size: 14px; }
+.moto-news-source { color: #e4c28c; font-weight: 700; }
+.moto-news-summary { margin-block: 20px; line-height: 1.7; }
+.moto-news a, .moto-news-all { color: #f0cf98; text-decoration: underline; text-underline-offset: 4px; display: inline-block; padding-block: 12px; }
+.moto-news-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+.moto-news-controls button { min-height: 44px; padding: 10px 16px; font: inherit; background: #222; border: 1px solid #aaa; color: #fff; cursor: pointer; }
+.moto-news :focus-visible, .moto-news-page :focus-visible { outline: 3px solid #ffd787; outline-offset: 5px; }
+.moto-news-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.moto-news-page { background: #111; color: #f5f5f5; }
+.moto-news-page footer { padding-block: 30px; color: #ccc; }
+.news-skip { position: absolute; left: 16px; top: -100px; background: #fff; color: #111; padding: 12px; z-index: 999; }
+.news-skip:focus { top: 16px; }
+@media (max-width: 700px) { .moto-news-grid { grid-template-columns: 1fr; } }

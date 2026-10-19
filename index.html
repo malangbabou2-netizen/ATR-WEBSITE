@@ -34,6 +34,7 @@
 
     <link rel="preload" as="image" href="images/hero-ATR.jpg" fetchpriority="high">
     <link rel="stylesheet" href="style.css?v=20261010-rose-poster">
+    <link rel="stylesheet" href="moto-news.css">
 </head>
 
 <body>
@@ -133,6 +134,23 @@
 
             <div class="hero-campaign-actions" aria-label="Navigation du Hero / Hero navigation"></div>
 
+        </section>
+
+        <section class="moto-news section" id="actu-moto" aria-labelledby="moto-news-title" data-moto-news="carousel">
+            <div class="container">
+                <p class="section-label">LE FIL MOTO</p>
+                <h2 id="moto-news-title">L’ACTU MOTO — À LA UNE</h2>
+                <p data-news-state role="status">Chargement des actualités…</p>
+                <div data-news-cards></div>
+                <div class="moto-news-controls" data-news-controls hidden>
+                    <button type="button" data-news-prev aria-label="Actualité précédente">← Précédente</button>
+                    <button type="button" data-news-pause>Mettre en pause</button>
+                    <button type="button" data-news-next aria-label="Actualité suivante">Suivante →</button>
+                    <span data-news-position></span>
+                </div>
+                <a class="moto-news-all" href="actualites.html">Toutes les actualités moto →</a>
+                <noscript><p>Activez JavaScript pour consulter le fil d’actualités.</p></noscript>
+            </div>
         </section>
         <aside class="container cms-banner" data-cms-placement="home-after-hero" hidden></aside>
 
@@ -1037,6 +1055,7 @@
     </footer>
 
 
+    <script type="module" src="moto-news.mjs"></script>
     <script src="translations.js"></script>
     <script src="script.js?v=20261016-fr"></script>
     <script type="module" src="atr-tv.js?v=20261016-fr"></script>

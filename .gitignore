@@ -1,3 +1,7 @@
 /_site/
 /atr-tv-catalog.json
 /cms-content-catalog.json
+
+/news/translations.json
+/.argos/
+__pycache__/
