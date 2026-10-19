@@ -4,6 +4,7 @@ import { resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { youtubeVideo, safeImage, TV_CATEGORIES, ATR_CHANNEL_URL } from '../atr-tv-utils.mjs';
 import { writeContentCatalog } from './build-cms-content.mjs';
+import { writeSitemap } from './build-sitemap.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const textFields = ['title', 'summary', 'image_alt'];
@@ -48,7 +49,7 @@ export async function buildCatalog(folder) {
     return { version: 1, channel_url: ATR_CHANNEL_URL, videos };
 }
 
-const publicFiles = ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'hero-carousel.mjs',
+const publicFiles = ['index.html', 'mentions-legales.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'hero-carousel.mjs',
     'robots.txt', 'sitemap.xml', 'CNAME'];
 const publicFolders = ['images/', 'documents/', 'uploads/', 'admin/'];
 
@@ -73,6 +74,7 @@ export async function stageSite(destination, catalog) {
     }
     await writeFile(resolve(output, 'atr-tv-catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
     await writeContentCatalog(resolve(project, 'content'), resolve(output, 'cms-content-catalog.json'));
+    await writeSitemap(output);
     await writeFile(resolve(output, '.nojekyll'), '');
 }
 

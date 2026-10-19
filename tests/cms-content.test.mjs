@@ -112,7 +112,7 @@ test('artifact contains both catalogs and all public dependencies, excludes inte
     try {
         const catalog = await buildCatalog(resolve('content/atr-tv'));
         await stageSite(output, catalog);
-        for (const file of ['index.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'admin/config.yml', 'admin/index.html', 'CNAME', 'robots.txt', 'sitemap.xml', 'images/IMG_3677.PNG', 'images/IMG_3678.PNG', 'images/hero-ATR.jpg', 'images/Octobre rose, ride and give.png', 'documents/CAMP ATR 2026 NIANING.pdf', 'documents/roadbooks/Roadbook J E E Y.pdf']) {
+        for (const file of ['index.html', 'mentions-legales.html', 'style.css', 'script.js', 'translations.js', 'atr-tv.js', 'atr-tv-utils.mjs', 'cms-content.js', 'cms-content-utils.mjs', 'admin/config.yml', 'admin/index.html', 'CNAME', 'robots.txt', 'sitemap.xml', 'images/IMG_3677.PNG', 'images/IMG_3678.PNG', 'images/hero-ATR.jpg', 'images/Octobre rose, ride and give.png', 'documents/CAMP ATR 2026 NIANING.pdf', 'documents/roadbooks/Roadbook J E E Y.pdf']) {
             assert.deepEqual(await readFile(resolve(output, file)), await readFile(file), file);
         }
         for (const file of ['content/events/any.fr.json', 'auth-worker/src/index.js', 'AGENTS.md', '.DS_Store', '.git/config']) await assert.rejects(readFile(resolve(output, file)), { code: 'ENOENT' });

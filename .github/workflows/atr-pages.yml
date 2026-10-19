@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify catalog and playback
-        run: node --test tests/atr-tv.test.mjs tests/cms-content.test.mjs tests/hero-carousel.test.mjs tests/decap-media.test.mjs
+        run: node --test tests/atr-tv.test.mjs tests/cms-content.test.mjs tests/hero-carousel.test.mjs tests/decap-media.test.mjs tests/seo.test.mjs
       - name: Build French public site and approved CMS catalogs
         run: node scripts/build-atr-tv.mjs --site-dir _site
       - name: Configure Pages
