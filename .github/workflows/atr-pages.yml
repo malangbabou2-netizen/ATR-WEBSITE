@@ -28,9 +28,22 @@ jobs:
         with:
           node-version: '22'
       - name: Verify catalog and playback
-        run: node --test tests/atr-tv.test.mjs tests/cms-content.test.mjs tests/hero-carousel.test.mjs tests/decap-media.test.mjs
+        run: node --test tests/atr-tv.test.mjs tests/cms-content.test.mjs tests/hero-carousel.test.mjs tests/decap-media.test.mjs tests/moto-news.test.mjs
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify RSS, rights gate and fallback
+        run: python -m unittest discover -s tests -p 'moto_news_test.py'
       - name: Build French public site and approved CMS catalogs
         run: node scripts/build-atr-tv.mjs --site-dir _site
+      - name: Install browser audit tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/news-browser" --no-audit --no-fund --ignore-scripts playwright@1.62.1 axe-core@4.10.3
+          node "$RUNNER_TEMP/news-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify news keyboard, motion and accessibility
+        env:
+          NODE_PATH: ${{ runner.temp }}/news-browser/node_modules
+        run: node tests/moto-news.browser.cjs
       - name: Configure Pages
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
@@ -40,9 +53,36 @@ jobs:
         with:
           path: _site
 
+  translation-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARGOS_PACKAGES_DIR: ${{ github.workspace }}/.argos/packages
+      XDG_CONFIG_HOME: ${{ github.workspace }}/.argos/config
+      XDG_CACHE_HOME: ${{ github.workspace }}/.argos/cache
+      XDG_DATA_HOME: ${{ github.workspace }}/.argos/data
+      ARGOS_CHUNK_TYPE: MINISBD
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/news-requirements.txt
+      - uses: actions/cache@v4
+        with:
+          path: .argos
+          key: argos-en-fr-1.9-lib-1.11-minisbd-v1
+      - name: Validate actual English to French translation on Ubuntu
+        run: |
+          pip install -r scripts/news-requirements.txt
+          python scripts/setup-news-translation.py
+
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: build
+    needs: [build, translation-smoke]
     runs-on: ubuntu-latest
     permissions:
       pages: write

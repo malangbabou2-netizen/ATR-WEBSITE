@@ -1,0 +1,92 @@
+name: Prepare hourly motorcycle news (review required)
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: moto-news-refresh
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      ARGOS_PACKAGES_DIR: ${{ github.workspace }}/.argos/packages
+      XDG_CONFIG_HOME: ${{ github.workspace }}/.argos/config
+      XDG_CACHE_HOME: ${{ github.workspace }}/.argos/cache
+      XDG_DATA_HOME: ${{ github.workspace }}/.argos/data
+      ARGOS_CHUNK_TYPE: MINISBD
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Detect explicitly permitted English sources
+        id: sources
+        run: |
+          python - <<'PY'
+          import importlib.util, json, os
+          spec = importlib.util.spec_from_file_location('news', 'scripts/fetch-moto-news.py')
+          module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+          sources = json.load(open('news/sources.json'))['sources']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write('english=' + str(any(module.approved(s) and s['language'] == 'en' for s in sources)).lower() + '\n')
+          PY
+      - uses: actions/cache@v4
+        if: steps.sources.outputs.english == 'true'
+        with:
+          path: .argos
+          key: argos-en-fr-1.9-lib-1.11-minisbd-v1
+      - name: Install free local translator
+        if: steps.sources.outputs.english == 'true'
+        run: |
+          pip install -r scripts/news-requirements.txt
+          python scripts/setup-news-translation.py
+      - name: Restore translation memoization
+        uses: actions/cache@v4
+        with:
+          path: news/translations.json
+          key: news-translations-${{ github.run_id }}
+          restore-keys: news-translations-
+      - name: Fetch RSS and preserve last good French articles
+        id: collect
+        continue-on-error: true
+        run: python scripts/fetch-moto-news.py
+      - name: Save reviewable result
+        uses: actions/upload-artifact@v4
+        with:
+          name: moto-news-candidate
+          path: |
+            news/catalog.json
+            news/fallback.json
+          retention-days: 7
+      - name: Propose cache update without publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if git diff --quiet -- news/catalog.json news/fallback.json; then exit 0; fi
+          branch=automation/moto-news-cache
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          gh api "repos/$GH_REPO/git/ref/heads/$branch" --jq .object.sha > "$RUNNER_TEMP/news-previous-sha" 2>/dev/null || true
+          previous=$(cat "$RUNNER_TEMP/news-previous-sha")
+          git switch -c "$branch"
+          git add news/catalog.json news/fallback.json
+          git commit -m 'Actualiser le cache français des actualités moto'
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push origin "HEAD:refs/heads/$branch" --force-with-lease="refs/heads/$branch:$previous"
+          if [ "$(gh pr list --head "$branch" --state open --json number --jq length)" = 0 ]; then
+            gh pr create --draft --base "$GITHUB_REF_NAME" --head "$branch" --title 'Actualiser le fil moto — validation avant publication' --body 'Cache RSS proposé automatiquement. Vérifier les sources, les traductions et la fraîcheur avant de fusionner. Aucune publication par ce workflow.'
+          fi
+      - name: Report incomplete collection
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo 'Une source ou traduction a échoué. Le cache autorisé précédent a été conservé ; consulter le journal.'
+          exit 1

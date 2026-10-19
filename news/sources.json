@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "total-motorcycle",
+      "name": "Total Motorcycle",
+      "url": "https://www.totalmotorcycle.com/feed/",
+      "hosts": [
+        "www.totalmotorcycle.com",
+        "totalmotorcycle.com"
+      ],
+      "language": "en",
+      "enabled": false,
+      "rights": {
+        "redistribution": false,
+        "translation": false,
+        "evidence": "https://www.totalmotorcycle.com/termsofuseandprivacypolicy",
+        "checked_at": "2026-10-19",
+        "note": "RSS HTTP 200 et XML valide (30 articles au contrôle). Conditions : republication et modification soumises à autorisation écrite. Désactivé ; aucune photo reprise."
+      }
+    }
+  ]
+}
